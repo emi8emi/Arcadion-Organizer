@@ -1,0 +1,280 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        String   @id // Discord User ID
+  username  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  characters Character[]
+  blacklists Blacklist[]
+
+  showRank Boolean @default(true)
+
+  teams   TeamMember[]
+  invites TeamInvite[]
+  matches MatchPlayer[]
+
+  toBeDeleted Boolean @default(false)
+
+  eventsCreated Event[]
+  eventSignups  EventSignup[]
+
+  eventPartyMembers EventPartyMember[]
+}
+
+model Team {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  ownerId     String
+  teamMmr     Int      @default(1500)
+  isTemporary Boolean  @default(false) // true for auto-generated PUG teams
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members        TeamMember[]
+  invites        TeamInvite[]
+  matchesAsTeamA Match[]      @relation("TeamA")
+  matchesAsTeamB Match[]      @relation("TeamB")
+}
+
+model Blacklist {
+  id           String   @id @default(uuid())
+  blockerId    String // The user who is blocking
+  blockedName  String // The character name being blocked
+  blockedWorld String // The world of the character being blocked
+  createdAt    DateTime @default(now())
+
+  blocker User @relation(fields: [blockerId], references: [id], onDelete: Cascade)
+
+  @@unique([blockerId, blockedName, blockedWorld])
+}
+
+model Character {
+  id                String   @id @default(uuid())
+  userId            String
+  name              String
+  world             String
+  fflogsCanonicalId String?  @unique
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name, world])
+  @@unique([name, world])
+}
+
+// ----- events related data -------
+model Event {
+  id          String  @id @default(uuid())
+  guildId     String
+  creatorId   String
+  categoryId  String? @unique // discord category id
+  fightId     String
+  description String
+
+  startDate DateTime
+  endDate   DateTime
+
+  status String @default("OPEN") // OPEN, CLOSED, COMPLETED, CANCELLED
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  creator       User                  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  organizers    EventEventOrganizer[]
+  eventSessions EventSession[]
+
+  @@map("Event")
+}
+
+model EventEventOrganizer {
+  id      String @id @default(uuid())
+  eventId String
+  userId  String
+  addedBy String
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+}
+
+model EventSession {
+  id      String @id @default(uuid())
+  eventId String
+
+  channelId             String? @unique
+  summaryMessageId      String?
+  controlPanelMessageId String?
+
+  date       DateTime
+  status     String   @default("OPEN") // OPEN, FORMING, LOCKED, CLOSED, COMPLETED, CANCELLED
+  snapshotAt DateTime // ideally a day before the event, but can be changed by the organizer (default: 22:00 UTC a day before date)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  event        Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventSignups EventSignup[]
+
+  eventParties EventParty[]
+}
+
+model EventSignup {
+  id        String @id @default(uuid())
+  sessionId String
+  userId    String
+
+  roles            EventSignupRoles[]
+  progPoint        String?
+  willingness      String? // "High = Extremely", "VeryHigh = Very", "Medium = Moderately", "Low = More than a lil", "VeryLow = A little", "None = Not at all" - null if isHelper is true
+  isHelper         Boolean            @default(false)
+  helperProgPoints String? // String[] - null if isHelper is false and willingness != "None"
+  availableFrom    DateTime
+  availableTo      DateTime
+  dailyLimit       Int                @default(2)
+
+  status          String   @default("PENDING") // PENDING, ACCEPTED, DECLINED
+  partiesAssigned Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  session EventSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, userId])
+}
+
+model EventSignupRoles {
+  id       String @id @default(uuid())
+  signupId String
+  role     String // TANK, HEALER, MELEE, PRANGED, CASTER
+
+  signup EventSignup @relation(fields: [signupId], references: [id], onDelete: Cascade)
+
+  @@unique([signupId, role])
+  @@map("Roles")
+}
+
+model EventParty {
+  id           String       @id @default(uuid())
+  sessionId    String
+  status       String       @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, PARTIAL, CANCELLED
+  isPartial    Boolean      @default(true)
+  session      EventSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  balanceScore Int          @default(0)
+
+  members EventPartyMember[]
+
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  eventPartyOutcome EventPartyOutcome?
+}
+
+model EventPartyOutcome {
+  id                    String  @id @default(uuid())
+  partyId               String  @unique
+  progAchieved          Boolean @default(false) // derived from FFLOGS, mapped against fight structure
+  fflogsUrl             String?
+  satisfactionUpvotes   Int     @default(0)
+  satisfactionDownvotes Int     @default(0)
+
+  createdAt  DateTime    @default(now())
+  eventParty EventParty? @relation(fields: [partyId], references: [id])
+}
+
+model PlayerPairHistory {
+  id                         String @id @default(uuid())
+  userId1                    String
+  userId2                    String
+  fullSessionsTogether       Int    @default(0)
+  incompleteSessionsTogether Int    @default(0)
+  score                      Int? // null until threshold is met, then compute
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId1, userId2])
+}
+
+model EventPartyMember {
+  id        String   @id @default(uuid())
+  partyId   String
+  userId    String
+  role      String
+  isHelper  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  party EventParty @relation(fields: [partyId], references: [id], onDelete: Cascade)
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([partyId, userId])
+}
+
+// ----- queue related data -------
+model TeamMember {
+  id       String   @id @default(uuid())
+  teamId   String
+  userId   String
+  joinedAt DateTime @default(now())
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+}
+
+model TeamInvite {
+  id        String   @id @default(uuid())
+  teamId    String
+  userId    String // The invited player's Discord ID
+  status    String   @default("PENDING") // PENDING, ACCEPTED, DECLINED
+  createdAt DateTime @default(now())
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+}
+
+model Match {
+  id         String  @id @default(uuid()) // The Match ID players use in the plugin
+  status     String  @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
+  eventName  String?
+  mode       String // SPEEDRUN, SURVIVAL
+  webhookUrl String?
+
+  teamAId String?
+  teamBId String?
+
+  winnerId String?
+
+  startTime DateTime?
+  endTime   DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  teamA   Team?         @relation("TeamA", fields: [teamAId], references: [id])
+  teamB   Team?         @relation("TeamB", fields: [teamBId], references: [id])
+  players MatchPlayer[]
+}
+
+model MatchPlayer {
+  id       String  @id @default(uuid())
+  matchId  String
+  userId   String?
+  teamSide String // "A" or "B"
+  role     String // Tank, Healer, Melee, Pranged, Caster
+
+  match Match @relation(fields: [matchId], references: [id])
+  user  User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+}

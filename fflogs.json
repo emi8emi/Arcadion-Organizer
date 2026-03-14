@@ -1,0 +1,1460 @@
+{
+  "P1": {
+    "characterData": {
+      "character": {
+        "recentReports": {
+          "data": [
+            {
+              "code": "KMZf3w71JhQzRjbt",
+              "startTime": 1772769166945,
+              "endTime": 1772855115702,
+              "masterData": {
+                "actors": [
+                  {
+                    "id": 1,
+                    "name": "Nox Box",
+                    "server": null
+                  },
+                  {
+                    "id": 2,
+                    "name": "Nox Box",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 3,
+                    "name": "Heya Ko",
+                    "server": "Cactuar"
+                  },
+                  {
+                    "id": 4,
+                    "name": "Celestia Yamulain",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 5,
+                    "name": "Intergy Harvey",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 8,
+                    "name": "Multiple Players",
+                    "server": null
+                  },
+                  {
+                    "id": 24,
+                    "name": "Limit Break",
+                    "server": null
+                  },
+                  {
+                    "id": 26,
+                    "name": "Nox Box",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 27,
+                    "name": "Nox Box",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 28,
+                    "name": "Celestia Yamulain",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 35,
+                    "name": "Edardial Peacebringer",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 37,
+                    "name": "Nox Box",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 38,
+                    "name": "Nox Box",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 39,
+                    "name": "Celestia Yamulain",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 57,
+                    "name": "Rheviel Soleil",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 58,
+                    "name": "Linirea Hyskaris",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 59,
+                    "name": "Ensetsu Hatasashi",
+                    "server": "Cactuar"
+                  },
+                  {
+                    "id": 60,
+                    "name": "",
+                    "server": null
+                  },
+                  {
+                    "id": 61,
+                    "name": "Neonras Sil'aria",
+                    "server": "Faerie"
+                  },
+                  {
+                    "id": 62,
+                    "name": "Maristela Asturias",
+                    "server": "Famfrit"
+                  },
+                  {
+                    "id": 63,
+                    "name": "Yisugei De'lashlend",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 64,
+                    "name": "Kiona Lynaer",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 65,
+                    "name": "Cutty Flam",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 66,
+                    "name": "Swiftcast Verraise",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 67,
+                    "name": "Jesden Everny",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 68,
+                    "name": "Reyna Renatus",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 69,
+                    "name": "Napoleon Bunaparte",
+                    "server": "Faerie"
+                  },
+                  {
+                    "id": 70,
+                    "name": "",
+                    "server": null
+                  },
+                  {
+                    "id": 71,
+                    "name": "Q'noa Rice",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 72,
+                    "name": "Clio Clover",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 73,
+                    "name": "Clio Clover",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 74,
+                    "name": "Bebo Bina",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 75,
+                    "name": "Nox Box",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 76,
+                    "name": "Elggarin Arlathil",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 77,
+                    "name": "Nox Box",
+                    "server": "Gilgamesh"
+                  }
+                ]
+              },
+              "fights": []
+            },
+            {
+              "code": "p8K1CzQLqYaycG3M",
+              "startTime": 1772153724195,
+              "endTime": 1772168497533,
+              "masterData": {
+                "actors": [
+                  {
+                    "id": 1,
+                    "name": "Ksenya Triborn",
+                    "server": null
+                  },
+                  {
+                    "id": 2,
+                    "name": "Nul'tus Teoxa",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 3,
+                    "name": "Geriel Kahkol",
+                    "server": "Ultros"
+                  },
+                  {
+                    "id": 4,
+                    "name": "Sjol Camoa",
+                    "server": "Seraph"
+                  },
+                  {
+                    "id": 5,
+                    "name": "Lucius Terremiaux",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 6,
+                    "name": "Zesher Swiftclaw",
+                    "server": "Goblin"
+                  },
+                  {
+                    "id": 7,
+                    "name": "Latrya Mylin-warde",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 8,
+                    "name": "Xena Cruise",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 9,
+                    "name": "Ksenya Triborn",
+                    "server": "Excalibur"
+                  },
+                  {
+                    "id": 10,
+                    "name": "Yukiji Yashiro",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 11,
+                    "name": "Armadale Exituss",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 12,
+                    "name": "Siris Lai'arder",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 13,
+                    "name": "Gabriel Badger",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 14,
+                    "name": "Yu Kii",
+                    "server": "Adamantoise"
+                  },
+                  {
+                    "id": 15,
+                    "name": "Exorcist Hana",
+                    "server": "Kraken"
+                  },
+                  {
+                    "id": 16,
+                    "name": "Chloe Fenris",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 17,
+                    "name": "Kaede Kisaragi",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 18,
+                    "name": "Talan Ironheart",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 19,
+                    "name": "Aluneth Eve",
+                    "server": "Seraph"
+                  },
+                  {
+                    "id": 20,
+                    "name": "Aira Magatsuhi",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 21,
+                    "name": "Ulagan Malqir",
+                    "server": "Exodus"
+                  },
+                  {
+                    "id": 22,
+                    "name": "Yu Kii",
+                    "server": "Adamantoise"
+                  },
+                  {
+                    "id": 23,
+                    "name": "Nyx Luar",
+                    "server": "Famfrit"
+                  },
+                  {
+                    "id": 24,
+                    "name": "Relious Starfire",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 25,
+                    "name": "Illegal Waymarks",
+                    "server": "Sargatanas"
+                  },
+                  {
+                    "id": 26,
+                    "name": "Igris Silva",
+                    "server": "Seraph"
+                  },
+                  {
+                    "id": 27,
+                    "name": "Axel Guzman",
+                    "server": "Diabolos"
+                  },
+                  {
+                    "id": 28,
+                    "name": "Helious Luxwalker",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 29,
+                    "name": "Achlys Ayla",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 30,
+                    "name": "Naomi Nagae",
+                    "server": "Seraph"
+                  },
+                  {
+                    "id": 31,
+                    "name": "Jonathan Clericus",
+                    "server": "Marilith"
+                  },
+                  {
+                    "id": 32,
+                    "name": "Touya Lockhart",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 33,
+                    "name": "Urteil Von'dunkelheit",
+                    "server": "Jenova"
+                  },
+                  {
+                    "id": 34,
+                    "name": "Mulletov Macmullet",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 35,
+                    "name": "Tyrren Alwarren",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 36,
+                    "name": "Altheria Zhandri",
+                    "server": "Mateus"
+                  },
+                  {
+                    "id": 37,
+                    "name": "Intergy Harvey",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 38,
+                    "name": "Sable Centaura",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 39,
+                    "name": "Rereno Namo",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 40,
+                    "name": "Heya Ko",
+                    "server": "Cactuar"
+                  },
+                  {
+                    "id": 41,
+                    "name": "Nox Box",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 42,
+                    "name": "Fallen Wraith",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 43,
+                    "name": "Celestia Yamulain",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 44,
+                    "name": "Multiple Players",
+                    "server": null
+                  },
+                  {
+                    "id": 55,
+                    "name": "Tatsuya Orochi",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 56,
+                    "name": "Ori Ann",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 57,
+                    "name": "Drai Saitl",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 58,
+                    "name": "Milly Trevelyan",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 59,
+                    "name": "Yera Kelsa",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 60,
+                    "name": "Annie Acid",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 61,
+                    "name": "Xenakun Kuroyami",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 62,
+                    "name": "Shimzey Sentinel",
+                    "server": "Goblin"
+                  },
+                  {
+                    "id": 63,
+                    "name": "Lyana Gladstone",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 64,
+                    "name": "Azami Nakidori",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 65,
+                    "name": "Valos Umbrair",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 66,
+                    "name": "Faera Nyx",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 69,
+                    "name": "Limit Break",
+                    "server": null
+                  }
+                ]
+              },
+              "fights": []
+            },
+            {
+              "code": "yHjwZDmcbkh6xBRL",
+              "startTime": 1771979485144,
+              "endTime": 1771988999980,
+              "masterData": {
+                "actors": [
+                  {
+                    "id": 1,
+                    "name": "Yang Miao-long",
+                    "server": null
+                  },
+                  {
+                    "id": 2,
+                    "name": "Yang Miao-long",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 3,
+                    "name": "Sable Centaura",
+                    "server": null
+                  },
+                  {
+                    "id": 4,
+                    "name": "Sable Centaura",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 5,
+                    "name": "Yang Miao-long",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 6,
+                    "name": "Intergy Harvey",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 7,
+                    "name": "Ratya Namo",
+                    "server": "Seraph"
+                  },
+                  {
+                    "id": 8,
+                    "name": "Heya Kou",
+                    "server": "Behemoth"
+                  },
+                  {
+                    "id": 9,
+                    "name": "Nox Box",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 10,
+                    "name": "Celestia Yamulain",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 11,
+                    "name": "Ksenya Triborn",
+                    "server": "Excalibur"
+                  },
+                  {
+                    "id": 12,
+                    "name": "Dancing Forgil",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 16,
+                    "name": "Multiple Players",
+                    "server": null
+                  },
+                  {
+                    "id": 34,
+                    "name": "Limit Break",
+                    "server": null
+                  },
+                  {
+                    "id": 72,
+                    "name": "Sable Centaura",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 73,
+                    "name": "Veronica Yamulain",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 74,
+                    "name": "Rereno Namo",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 75,
+                    "name": "Shinobu' Oshino",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 76,
+                    "name": "Not Xob",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 77,
+                    "name": "Nigel Marmalade",
+                    "server": "Excalibur"
+                  },
+                  {
+                    "id": 78,
+                    "name": "Heya Ko",
+                    "server": "Cactuar"
+                  },
+                  {
+                    "id": 80,
+                    "name": "Fallen Wraith",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 85,
+                    "name": "Sable Centaura",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 88,
+                    "name": "Not Xob",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 89,
+                    "name": "Sable Centaura",
+                    "server": "Midgardsormr"
+                  }
+                ]
+              },
+              "fights": [
+                {
+                  "id": 4,
+                  "name": "Lindwurm",
+                  "encounterID": 104,
+                  "difficulty": 101,
+                  "kill": false,
+                  "lastPhase": 0,
+                  "fightPercentage": 56.27,
+                  "friendlyPlayers": [
+                    12,
+                    11,
+                    10,
+                    9,
+                    8,
+                    7,
+                    6,
+                    5,
+                    16
+                  ]
+                },
+                {
+                  "id": 5,
+                  "name": "Lindwurm",
+                  "encounterID": 104,
+                  "difficulty": 101,
+                  "kill": true,
+                  "lastPhase": 0,
+                  "fightPercentage": 0.01,
+                  "friendlyPlayers": [
+                    12,
+                    11,
+                    10,
+                    9,
+                    8,
+                    7,
+                    6,
+                    5,
+                    34,
+                    16
+                  ]
+                },
+                {
+                  "id": 6,
+                  "name": "Lindwurm",
+                  "encounterID": 104,
+                  "difficulty": 101,
+                  "kill": false,
+                  "lastPhase": 0,
+                  "fightPercentage": 55.54,
+                  "friendlyPlayers": [
+                    12,
+                    11,
+                    10,
+                    9,
+                    8,
+                    7,
+                    6,
+                    5,
+                    16
+                  ]
+                },
+                {
+                  "id": 14,
+                  "name": "Lindwurm",
+                  "encounterID": 104,
+                  "difficulty": 101,
+                  "kill": false,
+                  "lastPhase": 0,
+                  "fightPercentage": 44.06,
+                  "friendlyPlayers": [
+                    78,
+                    77,
+                    75,
+                    74,
+                    73,
+                    72,
+                    88,
+                    80,
+                    16
+                  ]
+                },
+                {
+                  "id": 15,
+                  "name": "Lindwurm",
+                  "encounterID": 104,
+                  "difficulty": 101,
+                  "kill": true,
+                  "lastPhase": 0,
+                  "fightPercentage": 0.01,
+                  "friendlyPlayers": [
+                    78,
+                    77,
+                    75,
+                    74,
+                    73,
+                    72,
+                    88,
+                    34,
+                    80,
+                    16
+                  ]
+                },
+                {
+                  "id": 16,
+                  "name": "Lindwurm",
+                  "encounterID": 104,
+                  "difficulty": 101,
+                  "kill": false,
+                  "lastPhase": 0,
+                  "fightPercentage": 55.52,
+                  "friendlyPlayers": [
+                    78,
+                    77,
+                    75,
+                    74,
+                    73,
+                    72,
+                    88,
+                    80,
+                    16
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  },
+  "P2": {
+    "characterData": {
+      "character": {
+        "recentReports": {
+          "data": [
+            {
+              "code": "KMZf3w71JhQzRjbt",
+              "startTime": 1772769166945,
+              "endTime": 1772855115702,
+              "masterData": {
+                "actors": [
+                  {
+                    "id": 1,
+                    "name": "Nox Box",
+                    "server": null
+                  },
+                  {
+                    "id": 2,
+                    "name": "Nox Box",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 3,
+                    "name": "Heya Ko",
+                    "server": "Cactuar"
+                  },
+                  {
+                    "id": 4,
+                    "name": "Celestia Yamulain",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 5,
+                    "name": "Intergy Harvey",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 8,
+                    "name": "Multiple Players",
+                    "server": null
+                  },
+                  {
+                    "id": 24,
+                    "name": "Limit Break",
+                    "server": null
+                  },
+                  {
+                    "id": 26,
+                    "name": "Nox Box",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 27,
+                    "name": "Nox Box",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 28,
+                    "name": "Celestia Yamulain",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 35,
+                    "name": "Edardial Peacebringer",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 37,
+                    "name": "Nox Box",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 38,
+                    "name": "Nox Box",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 39,
+                    "name": "Celestia Yamulain",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 57,
+                    "name": "Rheviel Soleil",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 58,
+                    "name": "Linirea Hyskaris",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 59,
+                    "name": "Ensetsu Hatasashi",
+                    "server": "Cactuar"
+                  },
+                  {
+                    "id": 60,
+                    "name": "",
+                    "server": null
+                  },
+                  {
+                    "id": 61,
+                    "name": "Neonras Sil'aria",
+                    "server": "Faerie"
+                  },
+                  {
+                    "id": 62,
+                    "name": "Maristela Asturias",
+                    "server": "Famfrit"
+                  },
+                  {
+                    "id": 63,
+                    "name": "Yisugei De'lashlend",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 64,
+                    "name": "Kiona Lynaer",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 65,
+                    "name": "Cutty Flam",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 66,
+                    "name": "Swiftcast Verraise",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 67,
+                    "name": "Jesden Everny",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 68,
+                    "name": "Reyna Renatus",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 69,
+                    "name": "Napoleon Bunaparte",
+                    "server": "Faerie"
+                  },
+                  {
+                    "id": 70,
+                    "name": "",
+                    "server": null
+                  },
+                  {
+                    "id": 71,
+                    "name": "Q'noa Rice",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 72,
+                    "name": "Clio Clover",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 73,
+                    "name": "Clio Clover",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 74,
+                    "name": "Bebo Bina",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 75,
+                    "name": "Nox Box",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 76,
+                    "name": "Elggarin Arlathil",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 77,
+                    "name": "Nox Box",
+                    "server": "Gilgamesh"
+                  }
+                ]
+              },
+              "fights": []
+            },
+            {
+              "code": "p8K1CzQLqYaycG3M",
+              "startTime": 1772153724195,
+              "endTime": 1772168497533,
+              "masterData": {
+                "actors": [
+                  {
+                    "id": 1,
+                    "name": "Ksenya Triborn",
+                    "server": null
+                  },
+                  {
+                    "id": 2,
+                    "name": "Nul'tus Teoxa",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 3,
+                    "name": "Geriel Kahkol",
+                    "server": "Ultros"
+                  },
+                  {
+                    "id": 4,
+                    "name": "Sjol Camoa",
+                    "server": "Seraph"
+                  },
+                  {
+                    "id": 5,
+                    "name": "Lucius Terremiaux",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 6,
+                    "name": "Zesher Swiftclaw",
+                    "server": "Goblin"
+                  },
+                  {
+                    "id": 7,
+                    "name": "Latrya Mylin-warde",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 8,
+                    "name": "Xena Cruise",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 9,
+                    "name": "Ksenya Triborn",
+                    "server": "Excalibur"
+                  },
+                  {
+                    "id": 10,
+                    "name": "Yukiji Yashiro",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 11,
+                    "name": "Armadale Exituss",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 12,
+                    "name": "Siris Lai'arder",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 13,
+                    "name": "Gabriel Badger",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 14,
+                    "name": "Yu Kii",
+                    "server": "Adamantoise"
+                  },
+                  {
+                    "id": 15,
+                    "name": "Exorcist Hana",
+                    "server": "Kraken"
+                  },
+                  {
+                    "id": 16,
+                    "name": "Chloe Fenris",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 17,
+                    "name": "Kaede Kisaragi",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 18,
+                    "name": "Talan Ironheart",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 19,
+                    "name": "Aluneth Eve",
+                    "server": "Seraph"
+                  },
+                  {
+                    "id": 20,
+                    "name": "Aira Magatsuhi",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 21,
+                    "name": "Ulagan Malqir",
+                    "server": "Exodus"
+                  },
+                  {
+                    "id": 22,
+                    "name": "Yu Kii",
+                    "server": "Adamantoise"
+                  },
+                  {
+                    "id": 23,
+                    "name": "Nyx Luar",
+                    "server": "Famfrit"
+                  },
+                  {
+                    "id": 24,
+                    "name": "Relious Starfire",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 25,
+                    "name": "Illegal Waymarks",
+                    "server": "Sargatanas"
+                  },
+                  {
+                    "id": 26,
+                    "name": "Igris Silva",
+                    "server": "Seraph"
+                  },
+                  {
+                    "id": 27,
+                    "name": "Axel Guzman",
+                    "server": "Diabolos"
+                  },
+                  {
+                    "id": 28,
+                    "name": "Helious Luxwalker",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 29,
+                    "name": "Achlys Ayla",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 30,
+                    "name": "Naomi Nagae",
+                    "server": "Seraph"
+                  },
+                  {
+                    "id": 31,
+                    "name": "Jonathan Clericus",
+                    "server": "Marilith"
+                  },
+                  {
+                    "id": 32,
+                    "name": "Touya Lockhart",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 33,
+                    "name": "Urteil Von'dunkelheit",
+                    "server": "Jenova"
+                  },
+                  {
+                    "id": 34,
+                    "name": "Mulletov Macmullet",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 35,
+                    "name": "Tyrren Alwarren",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 36,
+                    "name": "Altheria Zhandri",
+                    "server": "Mateus"
+                  },
+                  {
+                    "id": 37,
+                    "name": "Intergy Harvey",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 38,
+                    "name": "Sable Centaura",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 39,
+                    "name": "Rereno Namo",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 40,
+                    "name": "Heya Ko",
+                    "server": "Cactuar"
+                  },
+                  {
+                    "id": 41,
+                    "name": "Nox Box",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 42,
+                    "name": "Fallen Wraith",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 43,
+                    "name": "Celestia Yamulain",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 44,
+                    "name": "Multiple Players",
+                    "server": null
+                  },
+                  {
+                    "id": 55,
+                    "name": "Tatsuya Orochi",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 56,
+                    "name": "Ori Ann",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 57,
+                    "name": "Drai Saitl",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 58,
+                    "name": "Milly Trevelyan",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 59,
+                    "name": "Yera Kelsa",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 60,
+                    "name": "Annie Acid",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 61,
+                    "name": "Xenakun Kuroyami",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 62,
+                    "name": "Shimzey Sentinel",
+                    "server": "Goblin"
+                  },
+                  {
+                    "id": 63,
+                    "name": "Lyana Gladstone",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 64,
+                    "name": "Azami Nakidori",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 65,
+                    "name": "Valos Umbrair",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 66,
+                    "name": "Faera Nyx",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 69,
+                    "name": "Limit Break",
+                    "server": null
+                  }
+                ]
+              },
+              "fights": []
+            },
+            {
+              "code": "yHjwZDmcbkh6xBRL",
+              "startTime": 1771979485144,
+              "endTime": 1771988999980,
+              "masterData": {
+                "actors": [
+                  {
+                    "id": 1,
+                    "name": "Yang Miao-long",
+                    "server": null
+                  },
+                  {
+                    "id": 2,
+                    "name": "Yang Miao-long",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 3,
+                    "name": "Sable Centaura",
+                    "server": null
+                  },
+                  {
+                    "id": 4,
+                    "name": "Sable Centaura",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 5,
+                    "name": "Yang Miao-long",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 6,
+                    "name": "Intergy Harvey",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 7,
+                    "name": "Ratya Namo",
+                    "server": "Seraph"
+                  },
+                  {
+                    "id": 8,
+                    "name": "Heya Kou",
+                    "server": "Behemoth"
+                  },
+                  {
+                    "id": 9,
+                    "name": "Nox Box",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 10,
+                    "name": "Celestia Yamulain",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 11,
+                    "name": "Ksenya Triborn",
+                    "server": "Excalibur"
+                  },
+                  {
+                    "id": 12,
+                    "name": "Dancing Forgil",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 16,
+                    "name": "Multiple Players",
+                    "server": null
+                  },
+                  {
+                    "id": 34,
+                    "name": "Limit Break",
+                    "server": null
+                  },
+                  {
+                    "id": 72,
+                    "name": "Sable Centaura",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 73,
+                    "name": "Veronica Yamulain",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 74,
+                    "name": "Rereno Namo",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 75,
+                    "name": "Shinobu' Oshino",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 76,
+                    "name": "Not Xob",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 77,
+                    "name": "Nigel Marmalade",
+                    "server": "Excalibur"
+                  },
+                  {
+                    "id": 78,
+                    "name": "Heya Ko",
+                    "server": "Cactuar"
+                  },
+                  {
+                    "id": 80,
+                    "name": "Fallen Wraith",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 85,
+                    "name": "Sable Centaura",
+                    "server": "Midgardsormr"
+                  },
+                  {
+                    "id": 88,
+                    "name": "Not Xob",
+                    "server": "Gilgamesh"
+                  },
+                  {
+                    "id": 89,
+                    "name": "Sable Centaura",
+                    "server": "Midgardsormr"
+                  }
+                ]
+              },
+              "fights": [
+                {
+                  "id": 7,
+                  "name": "Lindwurm II",
+                  "encounterID": 105,
+                  "difficulty": 101,
+                  "kill": false,
+                  "lastPhase": 0,
+                  "fightPercentage": 0.17,
+                  "friendlyPlayers": [
+                    12,
+                    11,
+                    10,
+                    9,
+                    8,
+                    7,
+                    6,
+                    5,
+                    34,
+                    16
+                  ]
+                },
+                {
+                  "id": 8,
+                  "name": "Lindwurm II",
+                  "encounterID": 105,
+                  "difficulty": 101,
+                  "kill": true,
+                  "lastPhase": 0,
+                  "fightPercentage": 0.01,
+                  "friendlyPlayers": [
+                    12,
+                    11,
+                    10,
+                    9,
+                    8,
+                    7,
+                    6,
+                    5,
+                    34,
+                    16
+                  ]
+                },
+                {
+                  "id": 17,
+                  "name": "Lindwurm II",
+                  "encounterID": 105,
+                  "difficulty": 101,
+                  "kill": false,
+                  "lastPhase": 0,
+                  "fightPercentage": 32.93,
+                  "friendlyPlayers": [
+                    78,
+                    77,
+                    75,
+                    74,
+                    73,
+                    72,
+                    88,
+                    34,
+                    80,
+                    16
+                  ]
+                },
+                {
+                  "id": 18,
+                  "name": "Lindwurm II",
+                  "encounterID": 105,
+                  "difficulty": 101,
+                  "kill": true,
+                  "lastPhase": 0,
+                  "fightPercentage": 0.01,
+                  "friendlyPlayers": [
+                    78,
+                    77,
+                    75,
+                    74,
+                    73,
+                    72,
+                    88,
+                    34,
+                    80,
+                    16
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  }
+}

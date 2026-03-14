@@ -1,0 +1,529 @@
+[
+  {
+    "name": "Ultimates (Legacy)",
+    "difficulties": [
+      {
+        "id": 100,
+        "name": "Normal",
+        "sizes": [
+          8
+        ]
+      }
+    ],
+    "encounters": [
+      {
+        "id": 1073,
+        "name": "The Unending Coil of Bahamut"
+      },
+      {
+        "id": 1074,
+        "name": "The Weapon's Refrain"
+      },
+      {
+        "id": 1075,
+        "name": "The Epic of Alexander"
+      },
+      {
+        "id": 1076,
+        "name": "Dragonsong's Reprise"
+      },
+      {
+        "id": 1077,
+        "name": "The Omega Protocol"
+      }
+    ]
+  },
+  {
+    "name": "AAC Heavyweight",
+    "difficulties": [
+      {
+        "id": 101,
+        "name": "Savage",
+        "sizes": [
+          8
+        ]
+      },
+      {
+        "id": 100,
+        "name": "Normal",
+        "sizes": [
+          8
+        ]
+      }
+    ],
+    "encounters": [
+      {
+        "id": 101,
+        "name": "Vamp Fatale"
+      },
+      {
+        "id": 102,
+        "name": "Red Hot and Deep Blue"
+      },
+      {
+        "id": 103,
+        "name": "The Tyrant"
+      },
+      {
+        "id": 104,
+        "name": "Lindwurm"
+      },
+      {
+        "id": 105,
+        "name": "Lindwurm II"
+      }
+    ]
+  },
+  {
+    "name": "AAC Cruiserweight",
+    "difficulties": [
+      {
+        "id": 101,
+        "name": "Savage",
+        "sizes": [
+          8
+        ]
+      },
+      {
+        "id": 100,
+        "name": "Normal",
+        "sizes": [
+          8
+        ]
+      }
+    ],
+    "encounters": [
+      {
+        "id": 97,
+        "name": "Dancing Green"
+      },
+      {
+        "id": 98,
+        "name": "Sugar Riot"
+      },
+      {
+        "id": 99,
+        "name": "Brute Abombinator"
+      },
+      {
+        "id": 100,
+        "name": "Howling Blade"
+      }
+    ]
+  },
+  {
+    "name": "AAC Light-Heavyweight",
+    "difficulties": [
+      {
+        "id": 101,
+        "name": "Savage",
+        "sizes": [
+          8
+        ]
+      },
+      {
+        "id": 100,
+        "name": "Normal",
+        "sizes": [
+          8
+        ]
+      }
+    ],
+    "encounters": [
+      {
+        "id": 93,
+        "name": "Black Cat"
+      },
+      {
+        "id": 94,
+        "name": "Honey B. Lovely"
+      },
+      {
+        "id": 95,
+        "name": "Brute Bomber"
+      },
+      {
+        "id": 96,
+        "name": "Wicked Thunder"
+      }
+    ]
+  },
+  {
+    "name": "Anabaseios",
+    "difficulties": [
+      {
+        "id": 101,
+        "name": "Savage",
+        "sizes": [
+          8
+        ]
+      },
+      {
+        "id": 100,
+        "name": "Normal",
+        "sizes": [
+          8
+        ]
+      }
+    ],
+    "encounters": [
+      {
+        "id": 88,
+        "name": "Kokytos"
+      },
+      {
+        "id": 89,
+        "name": "Pandaemonium"
+      },
+      {
+        "id": 90,
+        "name": "Themis"
+      },
+      {
+        "id": 91,
+        "name": "Athena"
+      },
+      {
+        "id": 92,
+        "name": "Pallas Athena"
+      }
+    ]
+  },
+  {
+    "name": "Abyssos",
+    "difficulties": [
+      {
+        "id": 101,
+        "name": "Savage",
+        "sizes": [
+          8
+        ]
+      },
+      {
+        "id": 100,
+        "name": "Normal",
+        "sizes": [
+          8
+        ]
+      }
+    ],
+    "encounters": [
+      {
+        "id": 83,
+        "name": "Proto-Carbuncle"
+      },
+      {
+        "id": 84,
+        "name": "Hegemone"
+      },
+      {
+        "id": 85,
+        "name": "Agdistis"
+      },
+      {
+        "id": 86,
+        "name": "Hephaistos"
+      },
+      {
+        "id": 87,
+        "name": "Hephaistos II"
+      }
+    ]
+  },
+  {
+    "name": "Asphodelos",
+    "difficulties": [
+      {
+        "id": 101,
+        "name": "Savage",
+        "sizes": [
+          8
+        ]
+      },
+      {
+        "id": 100,
+        "name": "Normal",
+        "sizes": [
+          8
+        ]
+      }
+    ],
+    "encounters": [
+      {
+        "id": 78,
+        "name": "Erichthonios"
+      },
+      {
+        "id": 79,
+        "name": "Hippokampos"
+      },
+      {
+        "id": 80,
+        "name": "Phoinix"
+      },
+      {
+        "id": 81,
+        "name": "Hesperos"
+      },
+      {
+        "id": 82,
+        "name": "Hesperos II"
+      }
+    ]
+  },
+  {
+    "name": "Eden's Promise",
+    "difficulties": [
+      {
+        "id": 101,
+        "name": "Savage",
+        "sizes": [
+          8
+        ]
+      },
+      {
+        "id": 100,
+        "name": "Normal",
+        "sizes": [
+          8
+        ]
+      }
+    ],
+    "encounters": [
+      {
+        "id": 73,
+        "name": "Cloud of Darkness"
+      },
+      {
+        "id": 74,
+        "name": "Shadowkeeper"
+      },
+      {
+        "id": 75,
+        "name": "Fatebreaker"
+      },
+      {
+        "id": 76,
+        "name": "Eden's Promise"
+      },
+      {
+        "id": 77,
+        "name": "Oracle of Darkness"
+      }
+    ]
+  },
+  {
+    "name": "Eden's Verse",
+    "difficulties": [
+      {
+        "id": 101,
+        "name": "Savage",
+        "sizes": [
+          8
+        ]
+      },
+      {
+        "id": 100,
+        "name": "Normal",
+        "sizes": [
+          8
+        ]
+      }
+    ],
+    "encounters": [
+      {
+        "id": 69,
+        "name": "Ramuh"
+      },
+      {
+        "id": 70,
+        "name": "Ifrit and Garuda"
+      },
+      {
+        "id": 71,
+        "name": "The Idol of Darkness"
+      },
+      {
+        "id": 72,
+        "name": "Shiva"
+      }
+    ]
+  },
+  {
+    "name": "Eden's Gate",
+    "difficulties": [
+      {
+        "id": 101,
+        "name": "Savage",
+        "sizes": [
+          8
+        ]
+      },
+      {
+        "id": 100,
+        "name": "Normal",
+        "sizes": [
+          8
+        ]
+      }
+    ],
+    "encounters": [
+      {
+        "id": 65,
+        "name": "Eden Prime"
+      },
+      {
+        "id": 66,
+        "name": "Voidwalker"
+      },
+      {
+        "id": 67,
+        "name": "Leviathan"
+      },
+      {
+        "id": 68,
+        "name": "Titan"
+      }
+    ]
+  },
+  {
+    "name": "Trials III (Extreme)",
+    "difficulties": [
+      {
+        "id": 100,
+        "name": "Normal",
+        "sizes": [
+          8
+        ]
+      }
+    ],
+    "encounters": [
+      {
+        "id": 1083,
+        "name": "Doomtrain"
+      }
+    ]
+  },
+  {
+    "name": "Trials II (Extreme)",
+    "difficulties": [
+      {
+        "id": 100,
+        "name": "Normal",
+        "sizes": [
+          8
+        ]
+      }
+    ],
+    "encounters": [
+      {
+        "id": 1080,
+        "name": "Zelenia"
+      },
+      {
+        "id": 1081,
+        "name": "Necron"
+      },
+      {
+        "id": 1082,
+        "name": "Guardian Arkveld"
+      }
+    ]
+  },
+  {
+    "name": "Trials I (Extreme)",
+    "difficulties": [
+      {
+        "id": 100,
+        "name": "Normal",
+        "sizes": [
+          8
+        ]
+      }
+    ],
+    "encounters": [
+      {
+        "id": 1071,
+        "name": "Valigarmanda"
+      },
+      {
+        "id": 1072,
+        "name": "Zoraal Ja"
+      },
+      {
+        "id": 1078,
+        "name": "Queen Eternal"
+      }
+    ]
+  },
+  {
+    "name": "Trials III (Extreme)",
+    "difficulties": [
+      {
+        "id": 100,
+        "name": "Normal",
+        "sizes": [
+          8
+        ]
+      }
+    ],
+    "encounters": [
+      {
+        "id": 1069,
+        "name": "Golbez"
+      },
+      {
+        "id": 1070,
+        "name": "Zeromus"
+      }
+    ]
+  },
+  {
+    "name": "Trials II (Extreme)",
+    "difficulties": [
+      {
+        "id": 100,
+        "name": "Normal",
+        "sizes": [
+          8
+        ]
+      }
+    ],
+    "encounters": [
+      {
+        "id": 1066,
+        "name": "Barbariccia"
+      },
+      {
+        "id": 1067,
+        "name": "Rubicante"
+      }
+    ]
+  },
+  {
+    "name": "Trials I (Extreme)",
+    "difficulties": [
+      {
+        "id": 100,
+        "name": "Normal",
+        "sizes": [
+          8
+        ]
+      }
+    ],
+    "encounters": [
+      {
+        "id": 1058,
+        "name": "Zodiark"
+      },
+      {
+        "id": 1059,
+        "name": "Hydaelyn"
+      },
+      {
+        "id": 1063,
+        "name": "Endsinger"
+      }
+    ]
+  }
+]

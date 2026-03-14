@@ -1,0 +1,35 @@
+{
+  "name": "ffxiv-mmr-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsx src/index.js",
+    "deploy": "tsx src/deploy-commands.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@prisma/adapter-better-sqlite3": "^7.4.2",
+    "@prisma/adapter-pg": "^7.4.2",
+    "@prisma/client": "^7.4.2",
+    "cheerio": "^1.2.0",
+    "discord.js": "^14.25.1",
+    "dotenv": "^17.3.1",
+    "node-fetch": "^2.7.0",
+    "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^25.3.5",
+    "@types/node-fetch": "^2.6.11",
+    "@types/pg": "^8.18.0",
+    "prisma": "^7.4.2",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

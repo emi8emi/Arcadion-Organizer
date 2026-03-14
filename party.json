@@ -1,0 +1,206 @@
+[
+  {
+    "code": "dqPAZRB39FY8tcb2",
+    "startTime": 1773073993371,
+    "endTime": 1773121325624,
+    "events": null,
+    "fights": [
+      {
+        "id": 23,
+        "name": "Futures Rewritten",
+        "encounterID": 1079,
+        "difficulty": 100,
+        "kill": true,
+        "lastPhase": 5,
+        "fightPercentage": 0,
+        "friendlyPlayers": [
+          79,
+          142,
+          77,
+          141,
+          11,
+          5,
+          212,
+          211,
+          210
+        ]
+      },
+      {
+        "id": 9,
+        "name": "Futures Rewritten",
+        "encounterID": 1079,
+        "difficulty": 100,
+        "kill": true,
+        "lastPhase": 5,
+        "fightPercentage": 0,
+        "friendlyPlayers": [
+          175,
+          174,
+          173,
+          7,
+          4,
+          179,
+          178,
+          177,
+          176
+        ]
+      },
+      {
+        "id": 10,
+        "name": "Futures Rewritten",
+        "encounterID": 1079,
+        "difficulty": 100,
+        "kill": true,
+        "lastPhase": 5,
+        "fightPercentage": 0,
+        "friendlyPlayers": [
+          11,
+          122,
+          90,
+          170,
+          169,
+          168,
+          6,
+          4,
+          3
+        ]
+      }
+    ]
+  },
+  {
+    "code": "MxT7CZWq4v2QmH6p",
+    "startTime": 1773062614797,
+    "endTime": 1773104621171,
+    "events": null,
+    "fights": [
+      {
+        "id": 23,
+        "name": "Futures Rewritten",
+        "encounterID": 1079,
+        "difficulty": 100,
+        "kill": true,
+        "lastPhase": 5,
+        "fightPercentage": 0,
+        "friendlyPlayers": [
+          79,
+          142,
+          77,
+          141,
+          11,
+          5,
+          212,
+          211,
+          210
+        ]
+      },
+      {
+        "id": 9,
+        "name": "Futures Rewritten",
+        "encounterID": 1079,
+        "difficulty": 100,
+        "kill": true,
+        "lastPhase": 5,
+        "fightPercentage": 0,
+        "friendlyPlayers": [
+          175,
+          174,
+          173,
+          7,
+          4,
+          179,
+          178,
+          177,
+          176
+        ]
+      },
+      {
+        "id": 10,
+        "name": "Futures Rewritten",
+        "encounterID": 1079,
+        "difficulty": 100,
+        "kill": true,
+        "lastPhase": 5,
+        "fightPercentage": 0,
+        "friendlyPlayers": [
+          11,
+          122,
+          90,
+          170,
+          169,
+          168,
+          6,
+          4,
+          3
+        ]
+      }
+    ]
+  },
+  {
+    "code": "n7cFCmgXdLvDGQjt",
+    "startTime": 1773079271074,
+    "endTime": 1773115370795,
+    "events": null,
+    "fights": [
+      {
+        "id": 23,
+        "name": "Futures Rewritten",
+        "encounterID": 1079,
+        "difficulty": 100,
+        "kill": true,
+        "lastPhase": 5,
+        "fightPercentage": 0,
+        "friendlyPlayers": [
+          79,
+          142,
+          77,
+          141,
+          11,
+          5,
+          212,
+          211,
+          210
+        ]
+      },
+      {
+        "id": 9,
+        "name": "Futures Rewritten",
+        "encounterID": 1079,
+        "difficulty": 100,
+        "kill": true,
+        "lastPhase": 5,
+        "fightPercentage": 0,
+        "friendlyPlayers": [
+          175,
+          174,
+          173,
+          7,
+          4,
+          179,
+          178,
+          177,
+          176
+        ]
+      },
+      {
+        "id": 10,
+        "name": "Futures Rewritten",
+        "encounterID": 1079,
+        "difficulty": 100,
+        "kill": true,
+        "lastPhase": 5,
+        "fightPercentage": 0,
+        "friendlyPlayers": [
+          11,
+          122,
+          90,
+          170,
+          169,
+          168,
+          6,
+          4,
+          3
+        ]
+      }
+    ]
+  }
+]

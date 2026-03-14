@@ -1,0 +1,128 @@
+const { Events, MessageFlags } = require('discord.js');
+
+const pveCommand = require('../commands/pve');
+const registerCommand = require('../commands/register');
+const userPanelCommand = require('../commands/userPanel');
+const eventsCommand = require('../commands/events');
+
+// IDs that belong to the pve UI flow
+const PVE_COMPONENT_IDS = [
+    'pve_select_fight',
+    'pve_select_prog',
+    'pve_confirm',
+    'pve_cancel',
+];
+
+const REGISTER_COMPONENT_IDS = [
+    'register_lodestone_modal',
+    'register_verify',
+    'register_cancel',
+    'register_add_character_btn',
+    'register_delete_character_btn',
+    'register_delete_character_select',
+];
+
+const USERPANEL_COMPONENT_IDS = [
+    'panel_view_profile_btn',
+    'panel_unregister_btn'
+];
+
+const EVENTS_COMPONENT_IDS = [
+    'events_create',
+    'events_create_tier',
+    'events_create_fight_id',
+    'events_create_modal',
+    'events_delete',
+    'events_delete_select',
+    'events_edit',
+    'events_end',
+];
+
+module.exports = {
+    name: Events.InteractionCreate,
+    async execute(interaction, client) {
+
+        // ── Autocomplete ─────────────────────────────────────────────────────
+        if (interaction.isAutocomplete()) {
+            const command = client.commands.get(interaction.commandName);
+            if (!command || !command.autocomplete) return;
+            try {
+                await command.autocomplete(interaction);
+            } catch (error) {
+                console.error('Autocomplete error:', error);
+            }
+            return;
+        }
+
+        // ── Slash commands ───────────────────────────────────────────────────
+        if (interaction.isChatInputCommand()) {
+            const command = client.commands.get(interaction.commandName);
+            if (!command) {
+                console.error(`No command matching ${interaction.commandName} was found.`);
+                return;
+            }
+            try {
+                await command.execute(interaction);
+            } catch (error) {
+                console.error(error);
+                if (interaction.replied || interaction.deferred) {
+                    await interaction.followUp({ content: 'There was an error while executing this command!', flags: [MessageFlags.Ephemeral] });
+                } else {
+                    await interaction.reply({ content: 'There was an error while executing this command!', flags: [MessageFlags.Ephemeral] });
+                }
+            }
+            return;
+        }
+
+        // ── Register components (buttons / select menus) ────────────────────
+        if ((interaction.isButton() || interaction.isStringSelectMenu() || interaction.isModalSubmit()) && REGISTER_COMPONENT_IDS.includes(interaction.customId)) {
+            try {
+                await registerCommand.handleComponent(interaction);
+            } catch (err) {
+                console.error('[register]', err);
+                const msg = { content: '❌ Something went wrong.', flags: [MessageFlags.Ephemeral] };
+                interaction.replied ? interaction.followUp(msg) : interaction.reply(msg);
+            }
+            return;
+        }
+
+        // ── User Panel components (buttons / select menus) ────────────────────
+        if ((interaction.isButton() || interaction.isStringSelectMenu()) && USERPANEL_COMPONENT_IDS.includes(interaction.customId)) {
+            try {
+                await userPanelCommand.handlePanelInteraction(interaction);
+            } catch (err) {
+                console.error('[user panel]', err);
+                const msg = { content: '❌ Something went wrong.', flags: [MessageFlags.Ephemeral] };
+                interaction.replied ? interaction.followUp(msg) : interaction.reply(msg);
+            }
+            return;
+        }
+
+        // ── Event components (buttons / select menus / modal submits) ────────────────────
+        if ((interaction.isButton() || interaction.isStringSelectMenu() || interaction.isModalSubmit()) && EVENTS_COMPONENT_IDS.includes(interaction.customId)) {
+            try {
+                await eventsCommand.handleComponent(interaction);
+            } catch (err) {
+                console.error('[events]', err);
+                const msg = { content: '❌ Something went wrong.', flags: [MessageFlags.Ephemeral] };
+                interaction.replied ? interaction.followUp(msg) : interaction.reply(msg);
+            }
+            return;
+        }
+
+        // ── PvE UI components (select menus + buttons) ───────────────────────
+        if (
+            (interaction.isStringSelectMenu() || interaction.isButton()) &&
+            (PVE_COMPONENT_IDS.includes(interaction.customId))
+        ) {
+            try {
+                await pveCommand.handleComponent(interaction);
+            } catch (err) {
+                console.error('[pve component]', err);
+                const msg = { content: '❌ Something went wrong.', flags: [MessageFlags.Ephemeral] };
+                interaction.replied ? interaction.followUp(msg) : interaction.reply(msg);
+            }
+            return;
+        }
+    },
+};
