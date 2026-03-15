@@ -20,9 +20,9 @@ import {
     CategoryChannel,
     Client,
 } from 'discord.js'
-import { prisma } from '../index.js';
 import { FIGHTS, FIGHTS_ARRAY, getFightName, FIGHTS_WITH_TIERS, FIGHTS_WITH_TIERS_ARRAY, TIERS, getFightsFromTier } from '../data/fights.js';
 import { Event, EventSession } from '../generated/prisma/client.js';
+import { eventService } from '../services/eventService.js';
 
 
 export const data = new SlashCommandBuilder()
@@ -373,16 +373,14 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
             }
 
             // Create Event in database
-            const event: Event = await prisma.event.create({
-                data: {
-                    guildId: interaction.guildId!,
-                    creatorId: interaction.user.id,
-                    fightId: fightId,
-                    categoryId: category.id,
-                    description: description,
-                    startDate: startDate,
-                    endDate: endDate,
-                },
+            const event: Event = await eventService.createEvent({
+                guildId: interaction.guildId!,
+                creatorId: interaction.user.id,
+                fightId: fightId,
+                categoryId: category.id,
+                description: description,
+                startDate: startDate,
+                endDate: endDate,
             });
 
             const channelsCreated = await createInitialChannels(event, sessionDates, interaction, category);
@@ -402,12 +400,11 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
 
     // -- /events delete | button ----------------------------
     else if ((interaction.isButton() || interaction.isChatInputCommand()) && interaction.customId === 'events_delete') {
-        const events = await prisma.event.findMany({
-            where: {
-                guildId: interaction.guildId!,
-                creatorId: interaction.user.id,
-            },
+        const events = await eventService.getEvents({
+            guildId: interaction.guildId!,
+            creatorId: interaction.user.id,
         });
+
         if (events.length === 0) {
             await interaction.reply({
                 content: 'No events found.',
@@ -439,10 +436,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
 
         await interaction.deferUpdate();
 
-        const event = await prisma.event.findUnique({
-            where: { id: eventId },
-            include: { eventSessions: true }
-        });
+        const event = await eventService.getEventById(eventId, true);
 
         if (!event) {
             await interaction.editReply({
@@ -474,9 +468,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
             console.error('Failed to delete Discord channels for event:', error);
         }
 
-        await prisma.event.delete({
-            where: { id: eventId }
-        });
+        await eventService.deleteEventById(eventId);
 
         await interaction.editReply({
             content: 'Event and associated channels deleted successfully.',
@@ -486,10 +478,8 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
     }
     // -- /events view | button ------------------------------
     else if (interaction.isButton() && interaction.customId === 'events_view') {
-        const events = await prisma.event.findMany({
-            where: {
-                guildId: interaction.guildId!,
-            },
+        const events = await eventService.getEvents({
+            guildId: interaction.guildId!,
         });
         if (events.length === 0) {
             await interaction.reply({
@@ -518,9 +508,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
     // -- /events view | select ------------------------------
     else if (interaction.isStringSelectMenu() && interaction.customId === 'events_view_select') {
         const eventId = interaction.values[0];
-        const event = await prisma.event.findUnique({
-            where: { id: eventId }
-        });
+        const event = await eventService.getEventById(eventId);
         if (!event) {
             await interaction.update({ content: 'Event not found.', components: [] });
             return false;
@@ -576,13 +564,11 @@ async function createInitialChannels(event: Event, sessionDates: Date[], interac
             channelsCreated++;
         }
 
-        await prisma.eventSession.create({
-            data: {
-                eventId: event.id,
-                channelId: channelId,
-                date: date,
-                snapshotAt: snapshotAt,
-            }
+        await eventService.createEventSession({
+            eventId: event.id,
+            channelId: channelId,
+            date: date,
+            snapshotAt: snapshotAt,
         });
     }
     return channelsCreated;
@@ -594,28 +580,9 @@ export async function createEventChannels(client: Client) {
     const yesterday = new Date(today.getTime() - (24 * 60 * 60 * 1000));
     const tomorrow = new Date(today.getTime() + (24 * 60 * 60 * 1000));
 
-    const events = await prisma.event.findMany({
-        where: {
-            startDate: {
-                lte: tomorrow,
-            },
-            endDate: {
-                gte: today,
-            },
-        },
-    });
+    const events = await eventService.getActiveEvents();
 
-    const sessions = await prisma.eventSession.findMany({
-        where: {
-            eventId: {
-                in: events.map(event => event.id),
-            },
-            date: {
-                gte: yesterday,
-                lte: tomorrow,
-            },
-        },
-    });
+    const sessions = await eventService.getActiveEventSessions(events.map(event => event.id));
 
     for (const event of events) {
         const guild = await client.guilds.fetch(event.guildId);
@@ -637,13 +604,11 @@ export async function createEventChannels(client: Client) {
             type: ChannelType.GuildText,
             parent: category.id,
         });
-        await prisma.eventSession.create({
-            data: {
-                eventId: event.id,
-                channelId: sessionChannel.id,
-                date: today,
-                snapshotAt: event.snapshotAt ?? new Date(today.getTime() - (24 * 60 * 60 * 1000)),
-            }
+        await eventService.createEventSession({
+            eventId: event.id,
+            channelId: sessionChannel.id,
+            date: today,
+            snapshotAt: event.snapshotAt ?? new Date(today.getTime() - (24 * 60 * 60 * 1000)),
         });
 
     }
@@ -655,27 +620,9 @@ export async function deleteEventChannels(client: Client) {
         const today = new Date();
         const yesterday = new Date(today.getTime() - (24 * 60 * 60 * 1000));
 
-        const events = await prisma.event.findMany({
-            where: {
-                startDate: {
-                    lte: today,
-                },
-                endDate: {
-                    gte: today,
-                },
-            },
-        });
+        const events = await eventService.getActiveEvents();
 
-        const sessions = await prisma.eventSession.findMany({
-            where: {
-                eventId: {
-                    in: events.map(event => event.id),
-                },
-                date: {
-                    lte: yesterday,
-                },
-            },
-        });
+        const sessions = await eventService.getActiveEventSessions(events.map(event => event.id));
 
         for (const event of events) {
             const guild = await client.guilds.fetch(event.guildId);
