@@ -81,8 +81,9 @@ model Event {
   fightId     String
   description String
 
-  startDate DateTime
-  endDate   DateTime
+  startDate  DateTime
+  endDate    DateTime
+  snapshotAt DateTime? // previous snapshot date
 
   status String @default("OPEN") // OPEN, CLOSED, COMPLETED, CANCELLED
 

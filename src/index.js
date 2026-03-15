@@ -10,9 +10,10 @@ const connectionString = `${process.env.DATABASE_URL}`;
 const adapter = new PrismaBetterSqlite3({ url: connectionString });
 export const prisma = new PrismaClient({ adapter });
 
-const client = new Client({
+export const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMembers
     ]
 });
 

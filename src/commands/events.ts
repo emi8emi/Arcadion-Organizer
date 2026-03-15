@@ -18,6 +18,7 @@ import {
     PermissionFlagsBits,
     ChannelType,
     CategoryChannel,
+    Client,
 } from 'discord.js'
 import { prisma } from '../index.js';
 import { FIGHTS, FIGHTS_ARRAY, getFightName, FIGHTS_WITH_TIERS, FIGHTS_WITH_TIERS_ARRAY, TIERS, getFightsFromTier } from '../data/fights.js';
@@ -384,7 +385,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
                 },
             });
 
-            const channelsCreated = await createEventChannels(event, sessionDates, interaction, category);
+            const channelsCreated = await createInitialChannels(event, sessionDates, interaction, category);
 
             await interaction.editReply({
                 content: `Event created successfully. Category <#${category.id}> was generated. ${channelsCreated} session channels were created immediately (remaining will be created 1 day before).`,
@@ -545,7 +546,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
     return false;
 }
 
-export async function createEventChannels(event: Event, sessionDates: Date[], interaction: ChatInputCommandInteraction | ModalSubmitInteraction, category?: CategoryChannel) {
+async function createInitialChannels(event: Event, sessionDates: Date[], interaction: ChatInputCommandInteraction | ModalSubmitInteraction, category?: CategoryChannel) {
     if (!category) {
         const tempCategory = await interaction.guild!.channels.fetch(event.categoryId!);
         if (!tempCategory) {
@@ -585,4 +586,111 @@ export async function createEventChannels(event: Event, sessionDates: Date[], in
         });
     }
     return channelsCreated;
+}
+
+export async function createEventChannels(client: Client) {
+    const today: Date = new Date();
+    today.setHours(0, 0, 0, 0);
+    const yesterday = new Date(today.getTime() - (24 * 60 * 60 * 1000));
+    const tomorrow = new Date(today.getTime() + (24 * 60 * 60 * 1000));
+
+    const events = await prisma.event.findMany({
+        where: {
+            startDate: {
+                lte: tomorrow,
+            },
+            endDate: {
+                gte: today,
+            },
+        },
+    });
+
+    const sessions = await prisma.eventSession.findMany({
+        where: {
+            eventId: {
+                in: events.map(event => event.id),
+            },
+            date: {
+                gte: yesterday,
+                lte: tomorrow,
+            },
+        },
+    });
+
+    for (const event of events) {
+        const guild = await client.guilds.fetch(event.guildId);
+        if (!guild) {
+            continue;
+        }
+        const category = await guild.channels.fetch(event.categoryId!);
+        if (!category) {
+            continue;
+        }
+        if (sessions.filter(session => session.eventId === event.id).length !== 0) {
+            continue;
+        }
+
+
+        const sessionChannelName = `session-${today.toISOString().split('T')[0]}`;
+        const sessionChannel = await guild.channels.create({
+            name: sessionChannelName,
+            type: ChannelType.GuildText,
+            parent: category.id,
+        });
+        await prisma.eventSession.create({
+            data: {
+                eventId: event.id,
+                channelId: sessionChannel.id,
+                date: today,
+                snapshotAt: event.snapshotAt ?? new Date(today.getTime() - (24 * 60 * 60 * 1000)),
+            }
+        });
+
+    }
+
+}
+
+export async function deleteEventChannels(client: Client) {
+    try {
+        const today = new Date();
+        const yesterday = new Date(today.getTime() - (24 * 60 * 60 * 1000));
+
+        const events = await prisma.event.findMany({
+            where: {
+                startDate: {
+                    lte: today,
+                },
+                endDate: {
+                    gte: today,
+                },
+            },
+        });
+
+        const sessions = await prisma.eventSession.findMany({
+            where: {
+                eventId: {
+                    in: events.map(event => event.id),
+                },
+                date: {
+                    lte: yesterday,
+                },
+            },
+        });
+
+        for (const event of events) {
+            const guild = await client.guilds.fetch(event.guildId);
+            if (guild && event.categoryId) {
+                for (const session of sessions.filter(session => session.eventId === event.id)) {
+                    if (session.channelId) {
+                        const channel = await guild.channels.fetch(session.channelId).catch(() => null);
+                        if (channel) {
+                            await channel.delete();
+                        }
+                    }
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Failed to delete Discord channels for event:', error);
+    }
 }
