@@ -5,3 +5,15 @@ node_modules
 /src/generated/prisma
 dev.db
 dev.db-journal
+*.db
+*.db-journal
+
+dist/
+generated/
+src/generated/
+
+.DS_Store
+Thumbs.db
+
+*.log
+npm-debug.log*
