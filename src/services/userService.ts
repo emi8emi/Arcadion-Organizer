@@ -1,6 +1,6 @@
 import { prisma } from "../index.js";
 import { Character, User } from "../generated/prisma/client.js";
-import { ActionRowBuilder, ButtonBuilder, CacheType, ChannelType, Interaction } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, CacheType, ChannelType, Interaction, MessageFlags } from "discord.js";
 import { userCache } from "../cache/userCache.js";
 import { characterCache } from "../cache/characterCache.js";
 import { CharacterOptions, characterService } from "./characterService.js";
@@ -55,11 +55,9 @@ export const userService = {
     async validateUser(interaction: Interaction<CacheType>, components?: ActionRowBuilder<ButtonBuilder>[]): Promise<boolean> {
         const user = await userCache.getOrFetch(interaction.user.id);
         if (!user) {
-            const msg = { content: '❌ You are not registered.', ephemeral: true, components: components } as const;
+            const msg = { content: '❌ You are not registered.', flags: [MessageFlags.Ephemeral], components: components } as const;
             if (interaction.isRepliable()) {
                 interaction.replied ? interaction.followUp(msg) : interaction.reply(msg);
-            } else if (interaction.channel?.type == ChannelType.GuildText) {
-                interaction.channel.send(msg);
             }
             return false;
         }
