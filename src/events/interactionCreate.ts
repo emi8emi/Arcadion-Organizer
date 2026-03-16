@@ -36,8 +36,8 @@ const EVENTS_COMPONENT_IDS = [
     'events_create_tier',
     'events_create_fight_id',
     'events_create_modal',
-    'events_delete',
-    'events_delete_select',
+    'events_cancel',
+    'events_cancel_select',
     'events_edit',
     'events_end',
 ];
