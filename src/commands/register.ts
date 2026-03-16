@@ -22,7 +22,6 @@ import { formatRank } from '../data/rankings';
 import { getCanonicalId } from '../utils/fflogs';
 import { Character } from '../generated/prisma/client';
 import { userService } from '../services/userService';
-import { characterCache } from '../cache/characterCache';
 import { characterService } from '../services/characterService';
 
 interface PendingVerification {
@@ -107,7 +106,7 @@ async function unregisterUser(interaction: ButtonInteraction | StringSelectMenuI
 async function deleteCharacter(interaction: ButtonInteraction | StringSelectMenuInteraction, characterIds: string[]): Promise<void> {
     try {
         await characterService.removeCharacter(interaction.user.id, characterIds);
-        const characters = await characterCache.get(interaction.user.id);
+        const characters = await characterService.getCharacters(interaction.user.id);
 
         if (characters && characters.length === 0) {
             return unregisterUser(interaction);
@@ -203,7 +202,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
     const existing = await userService.getUser(interaction.user.id, true);
 
     if (existing) {
-        const characters = await characterCache.get(interaction.user.id);
+        const characters = await characterService.getCharacters(interaction.user.id);
         const charInfo = characters ? `\n**Characters:** ${characters.map((char: { name: any; world: any; }) => `${char.name} @ ${char.world}`).join(', ')}` : '';
         await interaction.reply({
             embeds: [
@@ -377,7 +376,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
                     characters: [{ name, world, fflogsCanonicalId }],
                 });
             } else {
-                const characters = await characterCache.get(interaction.user.id);
+                const characters = await characterService.getCharacters(interaction.user.id);
                 const charExists = characters?.some((c: { name: string; world: string; }) => c.name === name && c.world === world);
                 if (!charExists) {
                     const fflogsCanonicalId = await getCanonicalId(name, world);
@@ -512,8 +511,8 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
 
     // ── Register: Delete Character (start) button ───────────────────────
     else if (interaction.isButton() && interaction.customId === 'register_delete_character_btn') {
-        const characters = await characterCache.get(interaction.user.id);
-        if (characters.length === 0) {
+        const characters = await characterService.getCharacters(interaction.user.id);
+        if (!characters || characters.length === 0) {
             await interaction.reply({
                 embeds: [
                     new EmbedBuilder()

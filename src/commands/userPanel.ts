@@ -10,7 +10,6 @@ import {
     PermissionFlagsBits,
 } from 'discord.js';
 import { userService } from '../services/userService';
-import { characterCache } from '../cache/characterCache';
 import { characterService } from '../services/characterService';
 
 // ─── Panel message builder ────────────────────────────────────────────────────
@@ -60,7 +59,7 @@ export async function handlePanelInteraction(interaction: ButtonInteraction): Pr
     // ── Register button — starts the same lodestone modal flow ───────────
     if (interaction.customId === 'panel_register_btn') {
         const existing = await userService.getUser(interaction.user.id);
-        const characters = await characterCache.get(interaction.user.id);
+        const characters = await characterService.getCharacters(interaction.user.id);
 
         if (existing) {
             const charInfo = characters && characters.length > 0
@@ -103,7 +102,7 @@ export async function handlePanelInteraction(interaction: ButtonInteraction): Pr
     // ── View Profile button ───────────────────────────────────────────────
     if (interaction.customId === 'panel_view_profile_btn') {
         const user = await userService.getUser(interaction.user.id);
-        const characters = await characterCache.get(interaction.user.id);
+        const characters = await characterService.getCharacters(interaction.user.id);
 
         if (!user) {
             await interaction.reply({
