@@ -21,7 +21,9 @@ import * as cheerio from 'cheerio';
 import { formatRank } from '../data/rankings';
 import { getCanonicalId } from '../utils/fflogs';
 import { Character } from '../generated/prisma/client';
-import userService from '../services/userService';
+import { userService } from '../services/userService';
+import { characterCache } from '../cache/characterCache';
+import { characterService } from '../services/characterService';
 
 interface PendingVerification {
     lodestoneUrl: string;
@@ -104,10 +106,10 @@ async function unregisterUser(interaction: ButtonInteraction | StringSelectMenuI
 
 async function deleteCharacter(interaction: ButtonInteraction | StringSelectMenuInteraction, characterIds: string[]): Promise<void> {
     try {
-        await userService.removeCharacter(interaction.user.id, characterIds);
-        const characters = await userService.getCharacters(interaction.user.id);
+        await characterService.removeCharacter(interaction.user.id, characterIds);
+        const characters = await characterCache.get(interaction.user.id);
 
-        if (characters.length === 0) {
+        if (characters && characters.length === 0) {
             return unregisterUser(interaction);
         }
 
@@ -148,6 +150,19 @@ function buildAddOrDeleteCharacterSelect(): ActionRowBuilder<ButtonBuilder> {
     );
 }
 
+export function buildRegisterWithSkip(): ActionRowBuilder<ButtonBuilder> {
+    return new ActionRowBuilder<ButtonBuilder>().addComponents(
+        new ButtonBuilder()
+            .setCustomId('register_add_character_btn')
+            .setLabel('Add Character')
+            .setStyle(ButtonStyle.Success),
+        new ButtonBuilder()
+            .setCustomId('register_skip_btn')
+            .setLabel('Skip')
+            .setStyle(ButtonStyle.Secondary),
+    );
+}
+
 function buildDeleteCharacterSelect(characters: Character[]): ActionRowBuilder<StringSelectMenuBuilder> {
     const menu = new StringSelectMenuBuilder()
         .setCustomId('register_delete_character_select')
@@ -163,6 +178,19 @@ function buildDeleteCharacterSelect(characters: Character[]): ActionRowBuilder<S
         .setMaxValues(characters.length);
     return new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(menu);
 }
+
+export async function registerNoCharacters(interaction: ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction | ModalSubmitInteraction): Promise<void> {
+    await interaction.editReply({
+        embeds: [
+            new EmbedBuilder()
+                .setTitle('No Characters')
+                .setColor(0xED4245)
+                .setDescription('You do not have any characters registered.'),
+        ],
+        components: [],
+    });
+}
+
 // ─── Module export ────────────────────────────────────────────────────────────
 
 export const data = new SlashCommandBuilder()
@@ -175,8 +203,8 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
     const existing = await userService.getUser(interaction.user.id, true);
 
     if (existing) {
-        const characters = existing.characters;
-        const charInfo = characters.length > 0 ? `\n**Characters:** ${characters.map((char: { name: any; world: any; }) => `${char.name} @ ${char.world}`).join(', ')}` : '';
+        const characters = await characterCache.get(interaction.user.id);
+        const charInfo = characters ? `\n**Characters:** ${characters.map((char: { name: any; world: any; }) => `${char.name} @ ${char.world}`).join(', ')}` : '';
         await interaction.reply({
             embeds: [
                 new EmbedBuilder()
@@ -220,18 +248,6 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
     if (interaction.isModalSubmit() && interaction.customId === 'register_lodestone_modal') {
         const raw = interaction.fields.getTextInputValue('lodestone_url');
         const parsed = parseLodestoneUrl(raw);
-
-        await interaction.editReply({
-            embeds: [
-                new EmbedBuilder()
-                    .setTitle('Checking your lodestone...')
-                    .setColor(0x57F287)
-                    .setDescription(
-                        'Please wait...'
-                    ),
-            ],
-            components: [],
-        });
 
         if (!parsed) {
             await interaction.reply({
@@ -361,10 +377,11 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
                     characters: [{ name, world, fflogsCanonicalId }],
                 });
             } else {
-                const charExists = existing.characters.some((c: { name: string; world: string; }) => c.name === name && c.world === world);
+                const characters = await characterCache.get(interaction.user.id);
+                const charExists = characters?.some((c: { name: string; world: string; }) => c.name === name && c.world === world);
                 if (!charExists) {
                     const fflogsCanonicalId = await getCanonicalId(name, world);
-                    await userService.addCharacter(interaction.user.id, { name, world, fflogsCanonicalId });
+                    await characterService.addCharacter(interaction.user.id, { name, world, fflogsCanonicalId });
                 } else {
                     await interaction.editReply({
                         embeds: [
@@ -461,9 +478,53 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
         await interaction.showModal(modal);
     }
 
+    // ── Register: Skip button ──────────────────────────────────────────
+    else if (interaction.isButton() && interaction.customId === 'register_skip_btn') {
+        try {
+            await userService.createUser({
+                userId: interaction.user.id,
+                username: interaction.user.username,
+            });
+        } catch (error) {
+            console.error(error);
+            await interaction.update({
+                embeds: [
+                    new EmbedBuilder()
+                        .setTitle('Error')
+                        .setColor(0xED4245)
+                        .setDescription('An error occurred while registering, please try again.'),
+                ],
+                components: [],
+            });
+            return;
+        }
+        await interaction.update({
+            content: 'You skipped linking, you can link your character later by using `/register` or the user-panel.',
+            embeds: [
+                new EmbedBuilder()
+                    .setTitle('Lodestone Linking Skipped')
+                    .setColor(0xED4245)
+                    .setDescription('You can use the organizer commands/panel now.'),
+            ],
+            components: [],
+        });
+    }
+
     // ── Register: Delete Character (start) button ───────────────────────
     else if (interaction.isButton() && interaction.customId === 'register_delete_character_btn') {
-        const characters = await userService.getCharacters(interaction.user.id);
+        const characters = await characterCache.get(interaction.user.id);
+        if (characters.length === 0) {
+            await interaction.reply({
+                embeds: [
+                    new EmbedBuilder()
+                        .setTitle('No Characters')
+                        .setColor(0xED4245)
+                        .setDescription('You have no characters registered.'),
+                ],
+                flags: [MessageFlags.Ephemeral],
+            });
+            return;
+        }
 
         const select = buildDeleteCharacterSelect(characters);
         await interaction.reply({

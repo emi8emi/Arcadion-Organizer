@@ -23,6 +23,8 @@ import {
 import { FIGHTS, FIGHTS_ARRAY, getFightName, FIGHTS_WITH_TIERS, FIGHTS_WITH_TIERS_ARRAY, TIERS, getFightsFromTier } from '../data/fights.js';
 import { Event, EventSession } from '../generated/prisma/client.js';
 import { eventService } from '../services/eventService.js';
+import { buildRegisterWithSkip } from './register.js';
+import { userService } from '../services/userService.js';
 
 
 export const data = new SlashCommandBuilder()
@@ -223,6 +225,11 @@ let selectedFightId: Map<string, string> = new Map();
 // handle component
 export async function handleComponent(interaction: ButtonInteraction | StringSelectMenuInteraction | ModalSubmitInteraction): Promise<boolean> {
     if (!await validateOrganizer(interaction)) return false;
+    const user = await userService.validateUser(interaction, [buildRegisterWithSkip()]);
+    if (!user) {
+        console.log('User not registered');
+        return false;
+    }
 
     // -- /events create | button ----------------------------
     // Button handler — just show the tier select

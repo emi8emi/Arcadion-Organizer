@@ -5,13 +5,12 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-import { PrismaClient, User } from './generated/prisma/client.js';
+import { PrismaClient } from './generated/prisma/client.js';
 import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
 
 const connectionString = `${process.env.DATABASE_URL}`;
 const adapter = new PrismaBetterSqlite3({ url: connectionString } as any);
 export const prisma = new PrismaClient({ adapter });
-export const usersCache = new Map<string, User>();
 
 // Extend the Client type to include commands
 declare module 'discord.js' {

@@ -1,9 +1,10 @@
-import { Events, MessageFlags, Interaction, Client, CacheType } from 'discord.js';
+import { Events, MessageFlags, Interaction, Client, CacheType, ChannelType } from 'discord.js';
 
 import * as pveCommand from '../commands/pve.js';
 import * as registerCommand from '../commands/register.js';
 import * as userPanelCommand from '../commands/userPanel.js';
 import * as eventsCommand from '../commands/events.js';
+import { userService } from '../services/userService.js';
 
 // IDs that belong to the pve UI flow
 const PVE_COMPONENT_IDS = [
@@ -17,6 +18,7 @@ const REGISTER_COMPONENT_IDS = [
     'register_lodestone_modal',
     'register_verify',
     'register_cancel',
+    'register_skip_btn',
     'register_add_character_btn',
     'register_delete_character_btn',
     'register_delete_character_select',
@@ -126,3 +128,4 @@ export default {
         }
     },
 };
+
