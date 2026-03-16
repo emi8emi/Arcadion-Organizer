@@ -43,16 +43,17 @@ export const characterService = {
         return characters;
     },
     async removeCharacter(userId: string, characterIds: string[]) {
-        characterCache.delete(userId);
-        return await prisma.user.update({
-            where: { id: userId },
-            data: { characters: { deleteMany: { id: { in: characterIds } } } },
+        let characters = await this.getCharacters(userId);
+        characters = characters.filter((c) => !characterIds.includes(c.id));
+        characterCache.set(userId, characters);
+        return await prisma.character.deleteMany({
+            where: { userId, id: { in: characterIds } },
         });
     },
     async removeAllCharacters(userId: string) {
-        return await prisma.user.update({
-            where: { id: userId },
-            data: { characters: { deleteMany: {} } },
+        characterCache.delete(userId);
+        return await prisma.character.deleteMany({
+            where: { userId },
         });
     },
 };

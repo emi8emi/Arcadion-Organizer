@@ -41,6 +41,7 @@ export const userService = {
         return user;
     },
     async deleteUser(userId: string) {
+        userCache.delete(userId);
         return await prisma.user.delete({
             where: { id: userId },
         });

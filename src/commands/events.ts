@@ -47,7 +47,7 @@ async function validateOrganizer(interaction: ChatInputCommandInteraction | Butt
     if (!role) {
         await interaction.reply({
             content: 'Organizer role not found.',
-            ephemeral: true,
+            flags: [MessageFlags.Ephemeral],
         });
         return false;
     }
@@ -55,7 +55,7 @@ async function validateOrganizer(interaction: ChatInputCommandInteraction | Butt
     if (!interaction.guild?.members.cache.get(userId)?.roles.cache.has(role.id) && !isAdmin) {
         await interaction.reply({
             content: 'You do not have permission to perform this action.',
-            ephemeral: true,
+            flags: [MessageFlags.Ephemeral],
         });
         return false;
     }
@@ -227,7 +227,6 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
     if (!await validateOrganizer(interaction)) return false;
     const user = await userService.validateUser(interaction, [buildRegisterWithSkip()]);
     if (!user) {
-        console.log('User not registered');
         return false;
     }
 
@@ -301,7 +300,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
         if (!selectedFightId.has(interaction.user.id)) {
             await interaction.reply({
                 content: 'No fight selected.',
-                ephemeral: true,
+                flags: [MessageFlags.Ephemeral],
             });
             return false;
         }
@@ -313,7 +312,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
         // Validation
         const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
         if (!dateRegex.test(startDateStr) || !dateRegex.test(endDateStr)) {
-            await interaction.reply({ content: 'Invalid date format. Please use exactly YYYY-MM-DD.', ephemeral: true });
+            await interaction.reply({ content: 'Invalid date format. Please use exactly YYYY-MM-DD.', flags: [MessageFlags.Ephemeral] });
             return false;
         }
 
@@ -321,11 +320,11 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
         const endDate = new Date(`${endDateStr}T00:00:00Z`);
 
         if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-            await interaction.reply({ content: 'Invalid date. Please enter valid calendar dates.', ephemeral: true });
+            await interaction.reply({ content: 'Invalid date. Please enter valid calendar dates.', flags: [MessageFlags.Ephemeral] });
             return false;
         }
         if (endDate < startDate) {
-            await interaction.reply({ content: 'End date cannot be before start date.', ephemeral: true });
+            await interaction.reply({ content: 'End date cannot be before start date.', flags: [MessageFlags.Ephemeral] });
             return false;
         }
 
@@ -333,7 +332,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
         const fightName = getFightName(fightId) || 'Event';
 
         // Defer reply since channel creation may take a moment
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
 
         try {
             const organizerRole = interaction.guild!.roles.cache.find(role => role.name.toLowerCase() === 'organizer');
@@ -415,7 +414,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
         if (events.length === 0) {
             await interaction.reply({
                 content: 'No events found.',
-                ephemeral: true,
+                flags: [MessageFlags.Ephemeral],
             });
             return false;
         }
@@ -433,7 +432,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
         await interaction.reply({
             content: 'Select an event to delete.',
             components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)],
-            ephemeral: true,
+            flags: [MessageFlags.Ephemeral],
         });
         return true;
     }
@@ -491,7 +490,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
         if (events.length === 0) {
             await interaction.reply({
                 content: 'No events found.',
-                ephemeral: true,
+                flags: [MessageFlags.Ephemeral],
             });
             return false;
         }
@@ -508,7 +507,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
         await interaction.reply({
             content: 'Select an event to view.',
             components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)],
-            ephemeral: true,
+            flags: [MessageFlags.Ephemeral],
         });
         return true;
     }

@@ -9,7 +9,9 @@ import {
     ButtonInteraction,
     PermissionFlagsBits,
 } from 'discord.js';
-import { prisma } from '../index.js';
+import { userService } from '../services/userService';
+import { characterCache } from '../cache/characterCache';
+import { characterService } from '../services/characterService';
 
 // ─── Panel message builder ────────────────────────────────────────────────────
 
@@ -57,14 +59,12 @@ export function buildUserPanelMessage() {
 export async function handlePanelInteraction(interaction: ButtonInteraction): Promise<boolean> {
     // ── Register button — starts the same lodestone modal flow ───────────
     if (interaction.customId === 'panel_register_btn') {
-        const existing = await prisma.user.findUnique({
-            where: { id: interaction.user.id },
-            include: { characters: true },
-        });
+        const existing = await userService.getUser(interaction.user.id);
+        const characters = await characterCache.get(interaction.user.id);
 
         if (existing) {
-            const charInfo = existing.characters.length > 0
-                ? `\n**Characters:** ${existing.characters.map(c => `${c.name} @ ${c.world}`).join(', ')}`
+            const charInfo = characters && characters.length > 0
+                ? `\n**Characters:** ${characters.map(c => `${c.name} @ ${c.world}`).join(', ')}`
                 : '';
             await interaction.reply({
                 embeds: [
@@ -102,10 +102,8 @@ export async function handlePanelInteraction(interaction: ButtonInteraction): Pr
 
     // ── View Profile button ───────────────────────────────────────────────
     if (interaction.customId === 'panel_view_profile_btn') {
-        const user = await prisma.user.findUnique({
-            where: { id: interaction.user.id },
-            include: { characters: true },
-        });
+        const user = await userService.getUser(interaction.user.id);
+        const characters = await characterCache.get(interaction.user.id);
 
         if (!user) {
             await interaction.reply({
@@ -120,8 +118,8 @@ export async function handlePanelInteraction(interaction: ButtonInteraction): Pr
             return true;
         }
 
-        const charList = user.characters.length > 0
-            ? user.characters.map(c => `• **${c.name}** @ ${c.world}`).join('\n')
+        const charList = characters && characters.length > 0
+            ? characters.map(c => `• **${c.name}** @ ${c.world}`).join('\n')
             : '*No characters linked.*';
 
         await interaction.reply({
@@ -168,7 +166,7 @@ export async function handlePanelInteraction(interaction: ButtonInteraction): Pr
     // ── Unregister confirm ────────────────────────────────────────────────
     if (interaction.customId === 'panel_unregister_confirm_btn') {
         try {
-            const user = await prisma.user.findUnique({ where: { id: interaction.user.id }, include: { characters: true } });
+            const user = await userService.getUser(interaction.user.id);
 
             if (!user || user.toBeDeleted) {
                 await interaction.update({
@@ -183,13 +181,8 @@ export async function handlePanelInteraction(interaction: ButtonInteraction): Pr
                 return true;
             }
 
-            await prisma.user.update({
-                where: { id: interaction.user.id },
-                data: { toBeDeleted: true },
-            });
-            await prisma.character.deleteMany({
-                where: { userId: interaction.user.id },
-            });
+            await characterService.removeAllCharacters(interaction.user.id);
+            await userService.deleteUser(interaction.user.id);
 
             await interaction.update({
                 embeds: [

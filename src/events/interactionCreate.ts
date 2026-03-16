@@ -26,7 +26,9 @@ const REGISTER_COMPONENT_IDS = [
 
 const USERPANEL_COMPONENT_IDS = [
     'panel_view_profile_btn',
-    'panel_unregister_btn'
+    'panel_unregister_btn',
+    'panel_unregister_confirm_btn',
+    'panel_unregister_cancel_btn',
 ];
 
 const EVENTS_COMPONENT_IDS = [
@@ -82,7 +84,7 @@ export default {
                 await registerCommand.handleComponent(interaction);
             } catch (err) {
                 console.error('[register]', err);
-                const msg = { content: '❌ Something went wrong.', ephemeral: true } as const;
+                const msg = { content: '❌ Something went wrong.', flags: [MessageFlags.Ephemeral] } as const;
                 interaction.replied ? interaction.followUp(msg) : interaction.reply(msg);
             }
             return;
@@ -94,7 +96,7 @@ export default {
                 await userPanelCommand.handlePanelInteraction(interaction as any);
             } catch (err) {
                 console.error('[user panel]', err);
-                const msg = { content: '❌ Something went wrong.', ephemeral: true } as const;
+                const msg = { content: '❌ Something went wrong.', flags: [MessageFlags.Ephemeral] } as const;
                 interaction.replied ? interaction.followUp(msg) : interaction.reply(msg as any);
             }
             return;
@@ -106,7 +108,7 @@ export default {
                 await eventsCommand.handleComponent(interaction as any);
             } catch (err) {
                 console.error('[events]', err);
-                const msg = { content: '❌ Something went wrong.', ephemeral: true } as const;
+                const msg = { content: '❌ Something went wrong.', flags: [MessageFlags.Ephemeral] } as const;
                 interaction.replied ? interaction.followUp(msg) : interaction.reply(msg);
             }
             return;
@@ -121,7 +123,7 @@ export default {
                 await pveCommand.handleComponent(interaction);
             } catch (err) {
                 console.error('[pve component]', err);
-                const msg = { content: '❌ Something went wrong.', ephemeral: true } as const;
+                const msg = { content: '❌ Something went wrong.', flags: [MessageFlags.Ephemeral] } as const;
                 interaction.replied ? interaction.followUp(msg) : interaction.reply(msg);
             }
             return;
