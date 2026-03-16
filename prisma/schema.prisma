@@ -90,14 +90,14 @@ model Event {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  creator       User                  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  organizers    EventEventOrganizer[]
+  creator       User             @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  organizers    EventOrganizer[]
   eventSessions EventSession[]
 
   @@map("Event")
 }
 
-model EventEventOrganizer {
+model EventOrganizer {
   id      String @id @default(uuid())
   eventId String
   userId  String
@@ -106,6 +106,7 @@ model EventEventOrganizer {
   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@unique([eventId, userId])
+  @@map("EventEventOrganizer")
 }
 
 model EventSession {
