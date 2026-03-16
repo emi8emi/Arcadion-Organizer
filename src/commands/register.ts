@@ -19,9 +19,9 @@ import {
 import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
 import { formatRank } from '../data/rankings';
-import { prisma } from '../index.js';
 import { getCanonicalId } from '../utils/fflogs';
 import { Character } from '../generated/prisma/client';
+import userService from '../services/userService';
 
 interface PendingVerification {
     lodestoneUrl: string;
@@ -87,9 +87,7 @@ function generateVerificationKey(): string {
 
 async function unregisterUser(interaction: ButtonInteraction | StringSelectMenuInteraction): Promise<void> {
     try {
-        await prisma.user.delete({
-            where: { id: interaction.user.id },
-        });
+        await userService.deleteUser(interaction.user.id);
         await interaction.update({
             embeds: [
                 new EmbedBuilder()
@@ -106,12 +104,8 @@ async function unregisterUser(interaction: ButtonInteraction | StringSelectMenuI
 
 async function deleteCharacter(interaction: ButtonInteraction | StringSelectMenuInteraction, characterIds: string[]): Promise<void> {
     try {
-        await prisma.character.deleteMany({
-            where: { id: { in: characterIds } },
-        });
-        const characters = await prisma.character.findMany({
-            where: { userId: interaction.user.id },
-        });
+        await userService.removeCharacter(interaction.user.id, characterIds);
+        const characters = await userService.getCharacters(interaction.user.id);
 
         if (characters.length === 0) {
             return unregisterUser(interaction);
@@ -178,10 +172,7 @@ export const data = new SlashCommandBuilder()
 // ─── Slash command entry ──────────────────────────────────────────────────
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
     // Already registered?
-    const existing = await prisma.user.findUnique({
-        where: { id: interaction.user.id },
-        include: { characters: true },
-    });
+    const existing = await userService.getUser(interaction.user.id, true);
 
     if (existing) {
         const characters = existing.characters;
@@ -359,35 +350,21 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
 
             // ── Verified! Create user + character in DB ──────────────────
 
-            const existing = await prisma.user.findUnique({
-                where: { id: interaction.user.id },
-                include: { characters: true },
-            });
+            const existing = await userService.getUser(interaction.user.id, true);
 
 
             if (!existing) {
                 const fflogsCanonicalId = await getCanonicalId(name, world);
-                await prisma.user.create({
-                    data: {
-                        id: interaction.user.id,
-                        username: interaction.user.username,
-                        characters: {
-                            create: { name, world, fflogsCanonicalId },
-                        },
-                    },
+                await userService.createUser({
+                    userId: interaction.user.id,
+                    username: interaction.user.username,
+                    characters: [{ name, world, fflogsCanonicalId }],
                 });
             } else {
                 const charExists = existing.characters.some((c: { name: string; world: string; }) => c.name === name && c.world === world);
                 if (!charExists) {
                     const fflogsCanonicalId = await getCanonicalId(name, world);
-                    await prisma.user.update({
-                        where: { id: interaction.user.id },
-                        data: {
-                            characters: {
-                                create: { name, world, fflogsCanonicalId },
-                            },
-                        },
-                    });
+                    await userService.addCharacter(interaction.user.id, { name, world, fflogsCanonicalId });
                 } else {
                     await interaction.editReply({
                         embeds: [
@@ -486,9 +463,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
 
     // ── Register: Delete Character (start) button ───────────────────────
     else if (interaction.isButton() && interaction.customId === 'register_delete_character_btn') {
-        const characters = await prisma.character.findMany({
-            where: { userId: interaction.user.id },
-        });
+        const characters = await userService.getCharacters(interaction.user.id);
 
         const select = buildDeleteCharacterSelect(characters);
         await interaction.reply({

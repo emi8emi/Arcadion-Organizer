@@ -1,9 +1,9 @@
-const { Events, MessageFlags } = require('discord.js');
+import { Events, MessageFlags, Interaction, Client, CacheType } from 'discord.js';
 
-const pveCommand = require('../commands/pve');
-const registerCommand = require('../commands/register');
-const userPanelCommand = require('../commands/userPanel');
-const eventsCommand = require('../commands/events');
+import * as pveCommand from '../commands/pve.js';
+import * as registerCommand from '../commands/register.js';
+import * as userPanelCommand from '../commands/userPanel.js';
+import * as eventsCommand from '../commands/events.js';
 
 // IDs that belong to the pve UI flow
 const PVE_COMPONENT_IDS = [
@@ -38,9 +38,9 @@ const EVENTS_COMPONENT_IDS = [
     'events_end',
 ];
 
-module.exports = {
+export default {
     name: Events.InteractionCreate,
-    async execute(interaction, client) {
+    async execute(interaction: Interaction<CacheType>, client: Client) {
 
         // ── Autocomplete ─────────────────────────────────────────────────────
         if (interaction.isAutocomplete()) {
@@ -80,7 +80,7 @@ module.exports = {
                 await registerCommand.handleComponent(interaction);
             } catch (err) {
                 console.error('[register]', err);
-                const msg = { content: '❌ Something went wrong.', flags: [MessageFlags.Ephemeral] };
+                const msg = { content: '❌ Something went wrong.', ephemeral: true } as const;
                 interaction.replied ? interaction.followUp(msg) : interaction.reply(msg);
             }
             return;
@@ -89,11 +89,11 @@ module.exports = {
         // ── User Panel components (buttons / select menus) ────────────────────
         if ((interaction.isButton() || interaction.isStringSelectMenu()) && USERPANEL_COMPONENT_IDS.includes(interaction.customId)) {
             try {
-                await userPanelCommand.handlePanelInteraction(interaction);
+                await userPanelCommand.handlePanelInteraction(interaction as any);
             } catch (err) {
                 console.error('[user panel]', err);
-                const msg = { content: '❌ Something went wrong.', flags: [MessageFlags.Ephemeral] };
-                interaction.replied ? interaction.followUp(msg) : interaction.reply(msg);
+                const msg = { content: '❌ Something went wrong.', ephemeral: true } as const;
+                interaction.replied ? interaction.followUp(msg) : interaction.reply(msg as any);
             }
             return;
         }
@@ -101,10 +101,10 @@ module.exports = {
         // ── Event components (buttons / select menus / modal submits) ────────────────────
         if ((interaction.isButton() || interaction.isStringSelectMenu() || interaction.isModalSubmit()) && EVENTS_COMPONENT_IDS.includes(interaction.customId)) {
             try {
-                await eventsCommand.handleComponent(interaction);
+                await eventsCommand.handleComponent(interaction as any);
             } catch (err) {
                 console.error('[events]', err);
-                const msg = { content: '❌ Something went wrong.', flags: [MessageFlags.Ephemeral] };
+                const msg = { content: '❌ Something went wrong.', ephemeral: true } as const;
                 interaction.replied ? interaction.followUp(msg) : interaction.reply(msg);
             }
             return;
@@ -119,7 +119,7 @@ module.exports = {
                 await pveCommand.handleComponent(interaction);
             } catch (err) {
                 console.error('[pve component]', err);
-                const msg = { content: '❌ Something went wrong.', flags: [MessageFlags.Ephemeral] };
+                const msg = { content: '❌ Something went wrong.', ephemeral: true } as const;
                 interaction.replied ? interaction.followUp(msg) : interaction.reply(msg);
             }
             return;
