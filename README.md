@@ -2,6 +2,8 @@
 
 
 ## Installation
-``` npm install;
+``` 
+npm install;
 npx prisma generate;
-npm run deploy;```
+npm run deploy;
+```
