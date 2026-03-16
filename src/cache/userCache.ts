@@ -8,13 +8,6 @@ export const userCache = {
     async get(userId: string): Promise<User | null> {
         return cache.get(userId) || null;
     },
-    async getOrFetch(userId: string): Promise<User | null> {
-        const user = await userCache.get(userId);
-        if (user) {
-            return user;
-        }
-        return await userService.getUser(userId);
-    },
     async set(userId: string, user: User): Promise<void> {
         cache.set(userId, user);
     },

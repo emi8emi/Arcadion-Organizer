@@ -4,24 +4,16 @@ import { CharacterOptions, characterService } from "../services/characterService
 const cache = new Map<string, Character[]>();
 
 export const characterCache = {
-    async get(userId: string): Promise<Character[]> {
-        const cached = cache.get(userId);
-        if (cached) {
-            return cached;
-        }
-        const characters = await characterService.getCharacters(userId);
-        if (characters.length > 0) {
-            cache.set(userId, characters);
-        } else {
-            cache.set(userId, []);
-        }
-        return characters;
+    async get(userId: string): Promise<Character[] | null> {
+        return cache.get(userId) ?? null;
     },
     async set(userId: string, characters: Character[]): Promise<void> {
         cache.set(userId, characters);
     },
+    async getAllCharacters(): Promise<Character[]> {
+        return Array.from(cache.values()).flat();
+    },
     async delete(userId: string): Promise<void> {
-        console.log(`[characterCache] Deleting cache for user ${userId}`);
         cache.set(userId, []);
     },
     async clear(): Promise<void> {

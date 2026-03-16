@@ -30,13 +30,17 @@ export const userService = {
         return user;
     },
     async createUser(options: CreateUserOptions) {
+        const existingUser = await this.getUser(options.userId);
+        if (existingUser) {
+            return existingUser;
+        }
         const user = await prisma.user.create({
             data: { id: options.userId, username: options.username, characters: { create: options.characters } },
         });
         userCache.set(user.id, user);
         if (options.characters) {
             const characters = await characterService.getCharacters(user.id);
-            characterCache.set(user.id, characters);
+            characterCache.set(user.id, characters!);
         }
         return user;
     },
@@ -53,7 +57,7 @@ export const userService = {
     //     });
     // },
     async validateUser(interaction: Interaction<CacheType>, components?: ActionRowBuilder<ButtonBuilder>[]): Promise<boolean> {
-        const user = await userCache.getOrFetch(interaction.user.id);
+        const user = await this.getUser(interaction.user.id);
         if (!user) {
             const msg = { content: '❌ You are not registered.', flags: [MessageFlags.Ephemeral], components: components } as const;
             if (interaction.isRepliable()) {

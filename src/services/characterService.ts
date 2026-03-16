@@ -17,25 +17,28 @@ export const characterService = {
         characterCache.set(userId, user.characters);
         return user;
     },
-    async getCharacter(userId: string, characterName: string) {
-        const cachedCharacters = await characterCache.get(userId);
+    async getCharacterByName(characterName: string, characterWorld: string) {
+        const cachedCharacters = await characterCache.getAllCharacters();
         const cachedCharacter = cachedCharacters?.find((c) => c.name === characterName);
         if (cachedCharacter) {
             return cachedCharacter;
         }
         const character = await prisma.character.findFirst({
-            where: { userId, name: characterName },
+            where: { name: characterName, world: characterWorld },
         });
         if (character) {
             if (cachedCharacters) {
-                characterCache.set(userId, [...cachedCharacters, character]);
+                characterCache.set(character.userId, [...cachedCharacters, character]);
             } else {
-                characterCache.set(userId, [character]);
+                characterCache.set(character.userId, [character]);
             }
         }
         return character;
     },
     async getCharacters(userId: string) {
+        const cached = characterCache.get(userId);
+        if (cached) return cached;
+
         const characters = await prisma.character.findMany({
             where: { userId },
         });
@@ -43,7 +46,7 @@ export const characterService = {
         return characters;
     },
     async removeCharacter(userId: string, characterIds: string[]) {
-        let characters = await this.getCharacters(userId);
+        let characters = await this.getCharacters(userId) ?? [];
         characters = characters.filter((c) => !characterIds.includes(c.id));
         characterCache.set(userId, characters);
         return await prisma.character.deleteMany({

@@ -1,4 +1,4 @@
-import { Event } from "../generated/prisma/client.js";
+import { Event, EventSession } from "../generated/prisma/client.js";
 import { prisma } from "../index.js";
 
 interface EventsOptions {
@@ -29,12 +29,37 @@ interface CreateEventSessionOptions {
     snapshotAt: Date;
 }
 
+export enum EventStatus {
+    OPEN = 'OPEN',
+    CLOSED = 'CLOSED',
+    COMPLETED = 'COMPLETED',
+    CANCELLED = 'CANCELLED'
+}
+
+export enum EventSessionStatus {
+    OPEN = 'OPEN',
+    FORMING = 'FORMING',
+    LOCKED = 'LOCKED',
+    CLOSED = 'CLOSED',
+    COMPLETED = 'COMPLETED',
+    CANCELLED = 'CANCELLED'
+}
+
 export const eventService = {
     async createEvent(options: CreateEventOptions) {
         return prisma.event.create({ data: options });
     },
     async createEventSession(options: CreateEventSessionOptions) {
         return prisma.eventSession.create({ data: options });
+    },
+    async getEventsByStatus(status: EventStatus[]) {
+        return prisma.event.findMany({
+            where: {
+                status: {
+                    in: status,
+                },
+            },
+        });
     },
     async getActiveEvents() {
         const today = new Date();
@@ -46,6 +71,18 @@ export const eventService = {
                 },
                 startDate: {
                     lte: today,
+                },
+            },
+        });
+    },
+    async getActiveEventSessionByStatus(eventIds: string[], status: EventSessionStatus[]) {
+        return prisma.eventSession.findMany({
+            where: {
+                eventId: {
+                    in: eventIds,
+                },
+                status: {
+                    in: status,
                 },
             },
         });
@@ -74,6 +111,12 @@ export const eventService = {
             where: { id },
             include: { eventSessions: includeEventSessions }
         });
+    },
+    async updateEventSession(id: string, eventSession: EventSession) {
+        return prisma.eventSession.update({ where: { id }, data: eventSession });
+    },
+    async updateEventSessionStatus(id: string, status: EventSessionStatus) {
+        return prisma.eventSession.update({ where: { id }, data: { status } });
     },
     async updateEvent(id: string, event: Event) {
         return prisma.event.update({ where: { id }, data: event });
