@@ -19,6 +19,8 @@ import {
     ChannelType,
     CategoryChannel,
     Client,
+    Guild,
+    GuildBasedChannel,
 } from 'discord.js'
 import { FIGHTS, FIGHTS_ARRAY, getFightName, FIGHTS_WITH_TIERS, FIGHTS_WITH_TIERS_ARRAY, TIERS, getFightsFromTier } from '../data/fights.js';
 import { Event, EventSession } from '../generated/prisma/client.js';
@@ -26,6 +28,9 @@ import { eventService, EventSessionStatus, EventStatus } from '../services/event
 import { buildRegisterWithSkip } from './register.js';
 import { userService } from '../services/userService.js';
 import { client } from '../index.js';
+import { buildEventsCreatorPanelMessage } from './eventsPanel.js';
+import { dateHelper } from '../utils/generalHelpers.js';
+import { error } from 'node:console';
 
 
 export const data = new SlashCommandBuilder()
@@ -36,9 +41,11 @@ export const data = new SlashCommandBuilder()
     .addSubcommand(sub =>
         sub.setName('edit').setDescription('Edit an existing event'))
     .addSubcommand(sub =>
-        sub.setName('end').setDescription('End an existing event'))
+        sub.setName('close').setDescription('Close an existing event'))
     .addSubcommand(sub =>
-        sub.setName('panel').setDescription('Show the organizer panel'));
+        sub.setName('panel').setDescription('Show the organizer panel'))
+    .addSubcommand(sub =>
+        sub.setName('delete_all_events').setDescription('Delete all events'));
 
 
 async function validateOrganizer(interaction: ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction | ModalSubmitInteraction): Promise<boolean> {
@@ -78,14 +85,23 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
 
     }
 
-    // -- /events end ------------------------------
-    else if (subcommand === 'end') {
+    // -- /events close ------------------------------
+    else if (subcommand === 'close') {
 
     }
 
     // -- /events panel ----------------------------
     else if (subcommand === 'panel') {
         await interaction.reply(buildEventPanelMessage());
+    }
+
+    // -- /events delete_all_events ----------------
+    else if (subcommand === 'delete_all_events') {
+        await interaction.reply({
+            content: "Deleting all events...",
+            flags: [MessageFlags.Ephemeral]
+        });
+        await deleteAllEvents(interaction);
     }
 }
 
@@ -126,11 +142,8 @@ function buildEventPanelMessage() {
 
 // ignore this for now
 function buildCreateEventModal() {
-    const today = new Date();
-    const tomorrow = new Date();
-    tomorrow.setDate(today.getDate() + 1);
-
-    const formatDate = (date: Date) => date.toISOString().split('T')[0];
+    const today = dateHelper.today();
+    const tomorrow = dateHelper.tomorrow();
 
     const modal = new ModalBuilder()
         .setCustomId('events_create_modal')
@@ -152,7 +165,7 @@ function buildCreateEventModal() {
         .setCustomId('events_create_start_date')
         .setStyle(TextInputStyle.Short)
         .setPlaceholder('YYYY-MM-DD')
-        .setValue(formatDate(today))
+        .setValue(dateHelper.fomatTimeOut(today))
         .setRequired(true);
 
     const startDateLabel = new LabelBuilder()
@@ -163,7 +176,7 @@ function buildCreateEventModal() {
         .setCustomId('events_create_end_date')
         .setStyle(TextInputStyle.Short)
         .setPlaceholder('YYYY-MM-DD')
-        .setValue(formatDate(tomorrow))
+        .setValue(dateHelper.fomatTimeOut(tomorrow))
         .setRequired(true);
 
     const endDateLabel = new LabelBuilder()
@@ -404,11 +417,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
 
     // -- /events cancel | button ----------------------------
     else if ((interaction.isButton() || interaction.isChatInputCommand()) && interaction.customId === 'events_cancel') {
-        const events = await eventService.getEvents({
-            guildId: interaction.guildId!,
-            creatorId: interaction.user.id,
-            status: EventStatus.OPEN,
-        });
+        const events = await eventService.getEventsByCreatorId(interaction.user.id);
 
         if (events.length === 0) {
             await interaction.reply({
@@ -452,20 +461,11 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
 
         try {
             // Delete session channels and update status to cancelled
-            await deleteInactiveEventChannels(true, [eventId]);
-
-            // Delete category channel
-            // if (event.categoryId) {
-            //     const category = await interaction.guild?.channels.fetch(event.categoryId).catch(() => null);
-            //     if (category) {
-            //         await category.delete();
-            //     }
-            // }
+            await deleteChannels(interaction, [eventId], true);
+            await eventService.updateEventStatus(eventId, EventStatus.CANCELLED, true);
         } catch (error) {
             console.error('Failed to delete Discord channels for event:', error);
         }
-
-        await eventService.deleteEventById(eventId);
 
         await interaction.editReply({
             content: 'Event and associated channels deleted successfully.',
@@ -475,9 +475,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
     }
     // -- /events view | button ------------------------------
     else if (interaction.isButton() && interaction.customId === 'events_view') {
-        const events = await eventService.getEvents({
-            guildId: interaction.guildId!,
-        });
+        const events = await eventService.getEventsByGuildId(interaction.guildId!);
         if (events.length === 0) {
             await interaction.reply({
                 content: 'No events found.',
@@ -531,7 +529,11 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
     return false;
 }
 
-async function createInitialChannels(event: Event, sessionDates: Date[], interaction: ChatInputCommandInteraction | ModalSubmitInteraction, category?: CategoryChannel) {
+async function createInitialChannels(
+    event: Event,
+    sessionDates: Date[],
+    interaction: ChatInputCommandInteraction | ModalSubmitInteraction,
+    category?: CategoryChannel) {
     if (!category) {
         const tempCategory = await interaction.guild!.channels.fetch(event.categoryId!);
         if (!tempCategory) {
@@ -542,9 +544,8 @@ async function createInitialChannels(event: Event, sessionDates: Date[], interac
 
     // Create channels only for sessions happening within the next 48 hours
     // to avoid hitting Discord's 50 channels per category limit.
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const fortyEightHoursFromNow = new Date(today.getTime() + (48 * 60 * 60 * 1000));
+    const today = dateHelper.today();
+    const fortyEightHoursFromNow = dateHelper.addHours(today, 48);
     let channelsCreated = 0;
 
     const creatorPanel = await interaction.guild!.channels.create({
@@ -552,9 +553,13 @@ async function createInitialChannels(event: Event, sessionDates: Date[], interac
         type: ChannelType.GuildText,
         parent: category.id,
     });
+    const message = buildEventsCreatorPanelMessage();
+    await creatorPanel.send({ ...message, flags: [MessageFlags.SuppressNotifications] });
+    await eventService.updateEventPanelChannelId(event.id, creatorPanel.id);
+    channelsCreated++;
 
-    for (const date of sessionDates) {
-        const snapshotAt = new Date(today.getTime() - (2 * 60 * 60 * 1000));
+    await Promise.all(sessionDates.map(async (date) => {
+        const snapshotAt = dateHelper.addHours(today, -2);
         let channelId = null;
 
         if (date <= fortyEightHoursFromNow) {
@@ -574,33 +579,27 @@ async function createInitialChannels(event: Event, sessionDates: Date[], interac
             date: date,
             snapshotAt: snapshotAt,
         });
-    }
+    }));
     return channelsCreated;
 }
 
 export async function createEventChannels(client: Client) {
-    const today: Date = new Date();
-    today.setHours(0, 0, 0, 0);
-    const yesterday = new Date(today.getTime() - (24 * 60 * 60 * 1000));
-    const tomorrow = new Date(today.getTime() + (24 * 60 * 60 * 1000));
+    const today: Date = dateHelper.today();
 
-    const events = await eventService.getActiveEvents();
+    const events = await eventService.getActiveEvents(true);
 
-    const sessions = await eventService.getActiveEventSessions(events.map(event => event.id));
-
-    for (const event of events) {
+    await Promise.all(events.map(async (event) => {
         const guild = await client.guilds.fetch(event.guildId);
         if (!guild) {
-            continue;
+            return;
         }
         const category = await guild.channels.fetch(event.categoryId!);
         if (!category) {
-            continue;
+            return;
         }
-        if (sessions.filter(session => session.eventId === event.id).length !== 0) {
-            continue;
+        if (event.eventSessions.length !== 0) {
+            return;
         }
-
 
         const sessionChannelName = `session-${today.toISOString().split('T')[0]}`;
         const sessionChannel = await guild.channels.create({
@@ -612,50 +611,132 @@ export async function createEventChannels(client: Client) {
             eventId: event.id,
             channelId: sessionChannel.id,
             date: today,
-            snapshotAt: event.snapshotAt ?? new Date(today.getTime() - (24 * 60 * 60 * 1000)),
+            snapshotAt: event.snapshotAt ?? dateHelper.yesterday(),
         });
 
-    }
+    }));
 
 }
 
-export async function deleteInactiveEventChannels(cancel: boolean = false, eventIds?: string[]) {
+async function deleteChannels(
+    interaction: StringSelectMenuInteraction | ChatInputCommandInteraction | ButtonInteraction,
+    eventIds?: string[],
+    deleteCategory: boolean = false) {
+    const guild: Guild | null = interaction.guild;
+    if (!guild) {
+        throw Error("Guild not found");
+    }
+    const events = eventIds ?
+        await eventService.getEventsByIds(eventIds, true)
+        : await eventService.getEventsByGuildId(guild.id, true);
+
+
+    if (!events) {
+        throw Error("Events not found");
+    }
+
+    for (const event of events) {
+        if (!event) {
+            throw Error("Event not found");
+        }
+
+        if (!event.categoryId) {
+            return;
+        }
+
+        try {
+            await Promise.all(event.eventSessions.map(async (session) => {
+                if (session.channelId) {
+                    await guild.channels.delete(session.channelId).catch((error) => {
+                        if (error.code === 10003) {
+                            return null;
+                        }
+                        throw error;
+                    });
+                }
+            }));
+            if (event.panelChannelId) {
+                await guild.channels.delete(event.panelChannelId).catch((error) => {
+                    if (error.code === 10003) {
+                        return null;
+                    }
+                    throw error;
+                });
+            }
+            if (deleteCategory) {
+                if (event.categoryId) {
+                    await guild.channels.delete(event.categoryId).catch((error) => {
+                        if (error.code === 10003) {
+                            return null;
+                        }
+                        throw error;
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('[events] Failed to delete Discord channels:', error);
+        }
+    }
+}
+
+export async function deleteInactiveEventChannels(interaction: StringSelectMenuInteraction | ChatInputCommandInteraction | ButtonInteraction) {
     try {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const yesterday = new Date(today.getTime() - (24 * 60 * 60 * 1000));
+        const yesterday = dateHelper.yesterday();
+        const guild = await interaction.guild?.id;
+        if (!guild) {
+            return;
+        }
 
-        const status = cancel ? EventSessionStatus.CANCELLED : EventSessionStatus.COMPLETED;
-        const rawEvents = await eventService.getEventsByStatus([EventStatus.CLOSED, EventStatus.OPEN, EventStatus.CANCELLED]);
-        const events = eventIds ? rawEvents.filter(event => eventIds.includes(event.id)) : rawEvents;
-
-        const rawSessions = await eventService.getActiveEventSessionByStatus(events.map(event => event.id), [EventSessionStatus.CLOSED, EventSessionStatus.OPEN]);
-        const openSessions = rawSessions.filter(session => session.status === EventSessionStatus.OPEN && session.date < yesterday);
-        const closedSessions = rawSessions.filter(session => session.status === EventSessionStatus.CLOSED && session.date < yesterday);
-        const sessionsToUpdate = cancel ? rawSessions : [...openSessions, ...closedSessions];
+        const events = await eventService.getEventByDateAndStatus(yesterday, [EventSessionStatus.OPEN, EventSessionStatus.CLOSED], guild, true);
 
         for (const event of events) {
-            const guild = await client.guilds.fetch(event.guildId);
             if (guild && event.categoryId) {
-                for (const session of sessionsToUpdate.filter(session => session.eventId === event.id)) {
+                for (const session of event.eventSessions) {
                     if (session.channelId) {
-                        const channel = await guild.channels.fetch(session.channelId).catch(() => null);
+                        const channel = await interaction.guild?.channels.fetch(session.channelId).catch(() => null);
                         if (channel) {
-                            await eventService.updateEventSessionStatus(session.id, status);
+                            await eventService.updateEventSessionStatus(session.id, EventSessionStatus.COMPLETED);
                             await channel.delete();
                         }
                     }
                 }
             }
-            if (cancel && event.status === EventStatus.OPEN) {
-                await eventService.updateEvent(event.id, { ...event, status: EventStatus.CANCELLED });
-            }
         }
     } catch (error) {
-        console.error('Failed to delete Discord channels for event:', error);
+        console.error('[events] Failed to delete Discord channels for event:', error);
     }
 }
 
 function getEventLabel(event: Event) {
     return `${getFightName(event.fightId) || 'Unknown Fight'} - ${event.description.substring(0, 100)}`;
+}
+
+async function deleteClosedEvents(interaction: ChatInputCommandInteraction) {
+    const guildId = interaction.guild?.id;
+    if (!guildId) {
+        return;
+    }
+    const closedEvents = await eventService.getEventsByGuildId(guildId);
+    const eventsToDelete = closedEvents.map(event => event.id);
+    eventService.deleteEventById(eventsToDelete);
+}
+
+async function deleteAllEvents(interaction: ChatInputCommandInteraction) {
+    if (!interaction.memberPermissions?.has(PermissionFlagsBits.Administrator)) {
+        return;
+    }
+    const guild = interaction.guild?.id;
+    if (!guild) {
+        return;
+    }
+    // interaction.deferReply();
+    const allEvents = await eventService.getEventsByGuildId(guild);
+    if (allEvents.length === 0) {
+        interaction.editReply("No events found.");
+        return;
+    }
+    const eventsToDelete = allEvents.map(event => event.id);
+    await deleteChannels(interaction, eventsToDelete, true);
+    await eventService.deleteEventById(eventsToDelete);
+    interaction.editReply("All events deleted.");
 }

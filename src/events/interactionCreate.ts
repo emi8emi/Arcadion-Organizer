@@ -39,7 +39,8 @@ const EVENTS_COMPONENT_IDS = [
     'events_cancel',
     'events_cancel_select',
     'events_edit',
-    'events_end',
+    'events_close',
+    'delete_all_events'
 ];
 
 export default {

@@ -1,13 +1,13 @@
 import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
 import { EventParty, EventPartyMember } from "../generated/prisma/client";
-import { getRoleEmoji } from "../utils/messageHelpers";
+import { getRoleEmoji } from "../utils/generalHelpers";
 import { characterService } from "../services/characterService";
 
 const organizerRole = "Organizer";
 
 // ─── Creator panel message builder ────────────────────────────────────────────────────
 
-function buildEventsCreatorPanelMessage() {
+export function buildEventsCreatorPanelMessage() {
     const warning = `⚠️ **Warning:** All admins and users with the ${organizerRole} role have access to this panel.`;
 
     const embed = new EmbedBuilder()
@@ -15,26 +15,26 @@ function buildEventsCreatorPanelMessage() {
         .setColor(0x5865F2)
         .setDescription(
             'Use the buttons below to manage this event.\n\n' +
-            '➕ **Add Organizer** — Add an organizer to this event.\n' +
-            '➖ **Remove Organizer** — Remove an organizer from this event.\n' +
-            '❌ **Cancel Event** — Cancel this event.\n',
+            '🧯 **Add Organizer** — Add an organizer to this event.\n' +
+            '🔥 **Remove Organizer** — Remove an organizer from this event.\n' +
+            '💥 **Cancel Event** — Cancel this event.\n',
         );
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
             .setCustomId('events_add_organizer_btn')
             .setLabel('Add Organizer')
-            .setEmoji('➕')
+            .setEmoji('🧯')
             .setStyle(ButtonStyle.Success),
         new ButtonBuilder()
             .setCustomId('events_remove_organizer_btn')
             .setLabel('Remove Organizer')
-            .setEmoji('➖')
+            .setEmoji('🔥')
             .setStyle(ButtonStyle.Danger),
         new ButtonBuilder()
             .setCustomId('events_cancel_event_btn')
             .setLabel('Cancel Event')
-            .setEmoji('❌')
+            .setEmoji('💥')
             .setStyle(ButtonStyle.Danger),
     );
 
@@ -54,7 +54,7 @@ function buildSessionOrganizerPanelMessage(closed: boolean = false) {
             'Use the buttons below to manage this session.\n\n' +
             '❗ **Ping Organizers** — Ping all organizers of this event.\n' +
             `🔒 **${closed ? 'Open' : 'Close'} Session** — ${closed ? 'Open' : 'Close'} this session.\n` +
-            // TODO: update the reversible warning, and consider enabling this button only when the session is closed
+            // TODO: validate the reversible warning, and consider enabling this button only when the session is closed
             `⚔️ **Force Party Formation** — Force party formation for this session (⚠️ this is PROBABLY not reversible. ⚠️).\n`
         );
 
@@ -127,10 +127,15 @@ async function buildSessionPartyMessage(party: EventParty, partyMembers: EventPa
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
-            .setCustomId('events_party_formation_btn')
-            .setLabel('Party Formation')
-            .setEmoji('⚔️')
+            .setCustomId('events_edit_party_btn')
+            .setLabel('Edit Party')
+            .setEmoji('✏️')
             .setStyle(ButtonStyle.Primary),
+        new ButtonBuilder()
+            .setCustomId('events_delete_party_btn')
+            .setLabel('Delete Party')
+            .setEmoji('🗑️')
+            .setStyle(ButtonStyle.Danger),
     );
 
     return { embeds: [embed], components: [row] };

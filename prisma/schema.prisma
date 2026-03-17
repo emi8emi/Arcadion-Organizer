@@ -74,12 +74,13 @@ model Character {
 
 // ----- events related data -------
 model Event {
-  id          String  @id @default(uuid())
-  guildId     String
-  creatorId   String
-  categoryId  String? @unique // discord category id
-  fightId     String
-  description String
+  id             String  @id @default(uuid())
+  guildId        String
+  creatorId      String
+  categoryId     String? @unique // discord category id
+  panelChannelId String? @unique // discord panel channel id
+  fightId        String
+  description    String
 
   startDate  DateTime
   endDate    DateTime
