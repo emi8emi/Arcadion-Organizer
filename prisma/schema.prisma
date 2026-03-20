@@ -115,7 +115,7 @@ model EventSession {
   eventId String
 
   channelId             String? @unique
-  summaryMessageId      String?
+  signUpPanelId         String?
   controlPanelMessageId String?
 
   date       DateTime
@@ -136,14 +136,14 @@ model EventSignup {
   sessionId String
   userId    String
 
-  roles            EventSignupRoles[]
+  jobs             Jobs[]
   progPoint        String?
   willingness      String? // "High = Extremely", "VeryHigh = Very", "Medium = Moderately", "Low = More than a lil", "VeryLow = A little", "None = Not at all" - null if isHelper is true
-  isHelper         Boolean            @default(false)
+  isHelper         Boolean  @default(false)
   helperProgPoints String? // String[] - null if isHelper is false and willingness != "None"
   availableFrom    DateTime
   availableTo      DateTime
-  dailyLimit       Int                @default(2)
+  dailyLimit       Int      @default(2)
 
   status          String   @default("PENDING") // PENDING, ACCEPTED, DECLINED
   partiesAssigned Int      @default(0)
@@ -156,24 +156,73 @@ model EventSignup {
   @@unique([sessionId, userId])
 }
 
-model EventSignupRoles {
-  id       String @id @default(uuid())
+enum Job {
+  PLD
+  WAR
+  DRK
+  GNB
+  WHM
+  SCH
+  AST
+  SGE
+  MNK
+  DRG
+  NIN
+  SAM
+  RPR
+  BRD
+  MCH
+  DNC
+  BLM
+  SMN
+  RDM
+  BLU
+}
+
+enum Role {
+  TANK
+  HEALER
+  MELEE
+  PRANGED
+  CASTER
+  LIMITED
+}
+
+enum HealerType {
+  REGEN
+  SHIELD
+}
+
+enum Modifier {
+  MT
+  OT
+  BOTH
+  FILL_MELEE
+  FILL_RANGED
+  FILL_CASTER
+}
+
+model Jobs {
+  id       String    @id @default(uuid())
   signupId String
-  role     String // TANK, HEALER, MELEE, PRANGED, CASTER
+  job      Job
+  role     Role
+  modifier Modifier?
 
-  signup EventSignup @relation(fields: [signupId], references: [id], onDelete: Cascade)
+  signup EventSignup @relation(fields: [signupId], references: [id])
 
-  @@unique([signupId, role])
-  @@map("Roles")
+  @@unique([signupId, job, modifier])
 }
 
 model EventParty {
-  id           String       @id @default(uuid())
-  sessionId    String
-  status       String       @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, PARTIAL, CANCELLED
-  isPartial    Boolean      @default(true)
-  session      EventSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  balanceScore Int          @default(0)
+  id             String       @id @default(uuid())
+  sessionId      String
+  status         String       @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, PARTIAL, CANCELLED
+  isPartial      Boolean      @default(true)
+  startTime      DateTime // derive from player availability window
+  timeslotBucket DateTime // nearest 2-hour slot for display grouping (example start is 10:45 -> 10:00, start is 11:30 -> 12:00)
+  session        EventSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  balanceScore   Int          @default(0)
 
   members EventPartyMember[]
 
@@ -209,13 +258,17 @@ model PlayerPairHistory {
 }
 
 model EventPartyMember {
-  id        String   @id @default(uuid())
-  partyId   String
-  userId    String
-  role      String
-  isHelper  Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(uuid())
+  partyId      String
+  userId       String
+  characterId  String?
+  job          String
+  role         String // TANK, HEALER, MELEE, PRANGED, CASTER - inferred from job
+  isHelper     Boolean  @default(false)
+  tankModifier String? // MT | OT | BOTH | null - only set if a tank is selected
+  fakeMelee    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   party EventParty @relation(fields: [partyId], references: [id], onDelete: Cascade)
   user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)

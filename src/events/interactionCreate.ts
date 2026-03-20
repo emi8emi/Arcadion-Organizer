@@ -4,6 +4,7 @@ import * as pveCommand from '../commands/pve.js';
 import * as registerCommand from '../commands/register.js';
 import * as userPanelCommand from '../commands/userPanel.js';
 import * as eventsCommand from '../commands/events.js';
+import * as eventsPanelCommand from '../commands/eventsPanel.js';
 import { userService } from '../services/userService.js';
 
 // IDs that belong to the pve UI flow
@@ -41,6 +42,10 @@ const EVENTS_COMPONENT_IDS = [
     'events_edit',
     'events_close',
     'delete_all_events'
+];
+
+const EVENTS_PANEL_COMPONENT_IDS = [
+    'events_panel_party',
 ];
 
 export default {
@@ -109,6 +114,18 @@ export default {
                 await eventsCommand.handleComponent(interaction as any);
             } catch (err) {
                 console.error('[events]', err);
+                const msg = { content: '❌ Something went wrong.', flags: [MessageFlags.Ephemeral] } as const;
+                interaction.replied ? interaction.followUp(msg) : interaction.reply(msg);
+            }
+            return;
+        }
+
+        // ── Event panel components (buttons / select menus / modal submits) ────────────────────
+        if ((interaction.isButton() || interaction.isStringSelectMenu() || interaction.isModalSubmit()) && EVENTS_PANEL_COMPONENT_IDS.includes(interaction.customId)) {
+            try {
+                await eventsPanelCommand.handleComponent(interaction as any);
+            } catch (err) {
+                console.error('[events panel]', err);
                 const msg = { content: '❌ Something went wrong.', flags: [MessageFlags.Ephemeral] } as const;
                 interaction.replied ? interaction.followUp(msg) : interaction.reply(msg);
             }

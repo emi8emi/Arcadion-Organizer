@@ -1,25 +1,32 @@
-import { EventSignupRoles } from "../generated/prisma/client";
-
-
-const ROLES = [
-    { name: 'TANK', emoji: '🛡️' },
-    { name: 'HEALER', emoji: '💚' },
-    { name: 'MELEE', emoji: '⚔️' },
-    { name: 'PRANGED', emoji: '🏹' },
-    { name: 'CASTER', emoji: '🔮' },
-];
-
-export function getRoleEmoji(role: EventSignupRoles | string): string {
-    if (typeof role === 'string') {
-        return ROLES.find(r => r.name === role)?.emoji ?? '❓';
-    }
-    return ROLES.find(r => r.name === role.role)?.emoji ?? '❓';
+export const getTimeSlot = (date: Date): string => {
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    return `${hours}:${minutes}`;
 }
 
 
+export enum DATE_FORMAT {
+    ISO = 'ISO',
+    DATE = 'DATE',
+    TIME = 'TIME',
+    TIME_WITH_Z = 'TIME_WITH_Z',
+    FORMAT_TIME = 'FORMAT_TIME',
+}
+
 export const dateHelper = {
-    fomatTimeOut: (date: Date): string => {
+    getDate: (date: Date): string => {
         return date.toISOString().split('T')[0];
+    },
+    getTimeWithZ: (date: Date): string => {
+        return date.toISOString().split('T')[1];
+    },
+    getTime: (date: Date): string => {
+        return date.toISOString().split('T')[1].split('.')[0];
+    },
+    formatHoursAndMinutes: (date: Date): string => {
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        return `${hours}:${minutes}`;
     },
     today: (time: boolean = false): Date => {
         const d = new Date();

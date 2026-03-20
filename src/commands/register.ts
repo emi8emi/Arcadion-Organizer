@@ -106,7 +106,7 @@ async function unregisterUser(interaction: ButtonInteraction | StringSelectMenuI
 async function deleteCharacter(interaction: ButtonInteraction | StringSelectMenuInteraction, characterIds: string[]): Promise<void> {
     try {
         await characterService.removeCharacter(interaction.user.id, characterIds);
-        const characters = await characterService.getCharacters(interaction.user.id);
+        const characters = await characterService.getUserCharacters(interaction.user.id);
 
         if (characters && characters.length === 0) {
             return unregisterUser(interaction);
@@ -199,10 +199,10 @@ export const data = new SlashCommandBuilder()
 // ─── Slash command entry ──────────────────────────────────────────────────
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
     // Already registered?
-    const existing = await userService.getUser(interaction.user.id, true);
+    const existing = await userService.getUserById(interaction.user.id, true);
 
     if (existing) {
-        const characters = await characterService.getCharacters(interaction.user.id);
+        const characters = await characterService.getUserCharacters(interaction.user.id);
         const charInfo = characters ? `\n**Characters:** ${characters.map((char: { name: any; world: any; }) => `${char.name} @ ${char.world}`).join(', ')}` : '';
         await interaction.reply({
             embeds: [
@@ -365,7 +365,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
 
             // ── Verified! Create user + character in DB ──────────────────
 
-            const existing = await userService.getUser(interaction.user.id, true);
+            const existing = await userService.getUserById(interaction.user.id, true);
 
 
             if (!existing) {
@@ -376,7 +376,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
                     characters: [{ name, world, fflogsCanonicalId }],
                 });
             } else {
-                const characters = await characterService.getCharacters(interaction.user.id);
+                const characters = await characterService.getUserCharacters(interaction.user.id);
                 const charExists = characters?.some((c: { name: string; world: string; }) => c.name === name && c.world === world);
                 if (!charExists) {
                     const fflogsCanonicalId = await getCanonicalId(name, world);
@@ -511,7 +511,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
 
     // ── Register: Delete Character (start) button ───────────────────────
     else if (interaction.isButton() && interaction.customId === 'register_delete_character_btn') {
-        const characters = await characterService.getCharacters(interaction.user.id);
+        const characters = await characterService.getUserCharacters(interaction.user.id);
         if (!characters || characters.length === 0) {
             await interaction.reply({
                 embeds: [

@@ -58,8 +58,8 @@ export function buildUserPanelMessage() {
 export async function handlePanelInteraction(interaction: ButtonInteraction): Promise<boolean> {
     // ── Register button — starts the same lodestone modal flow ───────────
     if (interaction.customId === 'panel_register_btn') {
-        const existing = await userService.getUser(interaction.user.id);
-        const characters = await characterService.getCharacters(interaction.user.id);
+        const existing = await userService.getUserById(interaction.user.id);
+        const characters = await characterService.getUserCharacters(interaction.user.id);
 
         if (existing) {
             const charInfo = characters && characters.length > 0
@@ -101,8 +101,8 @@ export async function handlePanelInteraction(interaction: ButtonInteraction): Pr
 
     // ── View Profile button ───────────────────────────────────────────────
     if (interaction.customId === 'panel_view_profile_btn') {
-        const user = await userService.getUser(interaction.user.id);
-        const characters = await characterService.getCharacters(interaction.user.id);
+        const user = await userService.getUserById(interaction.user.id);
+        const characters = await characterService.getUserCharacters(interaction.user.id);
 
         if (!user) {
             await interaction.reply({
@@ -165,7 +165,7 @@ export async function handlePanelInteraction(interaction: ButtonInteraction): Pr
     // ── Unregister confirm ────────────────────────────────────────────────
     if (interaction.customId === 'panel_unregister_confirm_btn') {
         try {
-            const user = await userService.getUser(interaction.user.id);
+            const user = await userService.getUserById(interaction.user.id);
 
             if (!user || user.toBeDeleted) {
                 await interaction.update({

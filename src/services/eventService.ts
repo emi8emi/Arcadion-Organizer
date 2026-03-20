@@ -29,6 +29,8 @@ interface CreateEventSessionOptions {
     channelId: string | null;
     date: Date;
     snapshotAt: Date;
+    controlPanelMessageId: string | null;
+    signUpPanelId: string | null;
 }
 
 export enum EventStatus {
@@ -112,6 +114,20 @@ export const eventService = {
             include: { eventSessions: includeEventSessions }
         });
     },
+    async getCancellableEvents(creatorId: string, includeEventSessions: boolean = false) {
+        return prisma.event.findMany({
+            where: {
+                creatorId,
+                status: EventStatus.OPEN,
+                eventSessions: {
+                    some: {
+                        status: EventSessionStatus.OPEN,
+                    },
+                },
+            },
+            include: { eventSessions: includeEventSessions }
+        });
+    },
     async getEventsByGuildId(guildId: string, includeEventSessions: boolean = false) {
         return prisma.event.findMany({
             where: {
@@ -162,6 +178,10 @@ export const eventService = {
         return prisma.eventSession.update({ where: { id }, data: { status } });
     },
     async updateEventStatus(id: string, status: EventStatus, updateEventSessions: boolean = false) {
+        const event = await this.getEventById(id, false);
+        if (!event) {
+            throw new Error('Event not found');
+        }
         return prisma.event.update({
             where: { id },
             data: {

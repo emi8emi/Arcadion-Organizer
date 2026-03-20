@@ -12,7 +12,7 @@ interface CreateUserOptions {
 }
 
 export const userService = {
-    async getUser(userId: string, includeCharacters: boolean = false): Promise<User | null> {
+    async getUserById(userId: string, includeCharacters: boolean = false): Promise<User | null> {
         const cachedUser = await userCache.get(userId);
         if (cachedUser) {
             return cachedUser;
@@ -30,7 +30,7 @@ export const userService = {
         return user;
     },
     async createUser(options: CreateUserOptions) {
-        const existingUser = await this.getUser(options.userId);
+        const existingUser = await this.getUserById(options.userId);
         if (existingUser) {
             return existingUser;
         }
@@ -39,7 +39,7 @@ export const userService = {
         });
         userCache.set(user.id, user);
         if (options.characters) {
-            const characters = await characterService.getCharacters(user.id);
+            const characters = await characterService.getUserCharacters(user.id);
             characterCache.set(user.id, characters!);
         }
         return user;
@@ -57,7 +57,7 @@ export const userService = {
     //     });
     // },
     async validateUser(interaction: Interaction<CacheType>, components?: ActionRowBuilder<ButtonBuilder>[]): Promise<boolean> {
-        const user = await this.getUser(interaction.user.id);
+        const user = await this.getUserById(interaction.user.id);
         if (!user) {
             const msg = { content: '❌ You are not registered.', flags: [MessageFlags.Ephemeral], components: components } as const;
             if (interaction.isRepliable()) {

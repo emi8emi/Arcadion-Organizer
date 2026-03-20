@@ -21,6 +21,8 @@ import {
     Client,
     Guild,
     GuildBasedChannel,
+    TextChannel,
+    Message,
 } from 'discord.js'
 import { FIGHTS, FIGHTS_ARRAY, getFightName, FIGHTS_WITH_TIERS, FIGHTS_WITH_TIERS_ARRAY, TIERS, getFightsFromTier } from '../data/fights.js';
 import { Event, EventSession } from '../generated/prisma/client.js';
@@ -28,9 +30,13 @@ import { eventService, EventSessionStatus, EventStatus } from '../services/event
 import { buildRegisterWithSkip } from './register.js';
 import { userService } from '../services/userService.js';
 import { client } from '../index.js';
-import { buildEventsCreatorPanelMessage } from './eventsPanel.js';
+import { buildCreateEventModal, buildEventPanelMessage, buildEventsCreatorPanelMessage, buildSessionOrganizerPanelMessage, buildSessionSignUpPanelMessage } from './eventsPanel.js';
 import { dateHelper } from '../utils/generalHelpers.js';
 import { error } from 'node:console';
+
+export enum TIME_SLOTS {
+
+}
 
 
 export const data = new SlashCommandBuilder()
@@ -107,86 +113,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
 
 // helpers
 
-function buildEventPanelMessage() {
-    const embed = new EmbedBuilder()
-        .setTitle('Event Panel')
-        .setColor(0x5865F2)
-        .setDescription(
-            'Use the buttons below to manage events.\n\n' +
-            '➕ **Create Event** — Create a new event.\n' +
-            '➖ **Cancel Event** — Cancel an event.\n' +
-            '🔍 **View Event** — View an event.\n'
-        );
 
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-            .setCustomId('events_create')
-            .setLabel('Create Event')
-            .setEmoji('➕')
-            .setStyle(ButtonStyle.Success),
-        new ButtonBuilder()
-            .setCustomId('events_cancel')
-            .setLabel('Cancel Event')
-            .setEmoji('➖')
-            .setStyle(ButtonStyle.Danger),
-        new ButtonBuilder()
-            .setCustomId('events_view')
-            .setLabel('View Event')
-            .setEmoji('🔍')
-            .setStyle(ButtonStyle.Secondary)
-    );
-
-    return { embeds: [embed], components: [row] };
-}
-
-
-// ignore this for now
-function buildCreateEventModal() {
-    const today = dateHelper.today();
-    const tomorrow = dateHelper.tomorrow();
-
-    const modal = new ModalBuilder()
-        .setCustomId('events_create_modal')
-        .setTitle('Create Event');
-
-    const descriptionInput = new TextInputBuilder()
-        .setCustomId('events_create_description')
-        .setStyle(TextInputStyle.Paragraph)
-        .setPlaceholder('Event Description')
-        .setRequired(true);
-
-    const descriptionLabel = new LabelBuilder()
-        .setLabel('Event Description')
-        .setTextInputComponent(descriptionInput)
-
-    modal.addLabelComponents(descriptionLabel);
-
-    const startDateInput = new TextInputBuilder()
-        .setCustomId('events_create_start_date')
-        .setStyle(TextInputStyle.Short)
-        .setPlaceholder('YYYY-MM-DD')
-        .setValue(dateHelper.fomatTimeOut(today))
-        .setRequired(true);
-
-    const startDateLabel = new LabelBuilder()
-        .setLabel('Start Date')
-        .setTextInputComponent(startDateInput);
-
-    const endDateInput = new TextInputBuilder()
-        .setCustomId('events_create_end_date')
-        .setStyle(TextInputStyle.Short)
-        .setPlaceholder('YYYY-MM-DD')
-        .setValue(dateHelper.fomatTimeOut(tomorrow))
-        .setRequired(true);
-
-    const endDateLabel = new LabelBuilder()
-        .setLabel('End Date')
-        .setTextInputComponent(endDateInput);
-
-    modal.addLabelComponents(startDateLabel, endDateLabel);
-
-    return modal;
-}
 
 export async function showTierSelection(interaction: ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction): Promise<void> {
     const embed = {
@@ -417,7 +344,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
 
     // -- /events cancel | button ----------------------------
     else if ((interaction.isButton() || interaction.isChatInputCommand()) && interaction.customId === 'events_cancel') {
-        const events = await eventService.getEventsByCreatorId(interaction.user.id);
+        const events: (Event & { eventSessions: EventSession[] })[] = await eventService.getCancellableEvents(interaction.user.id);
 
         if (events.length === 0) {
             await interaction.reply({
@@ -448,16 +375,6 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
         const eventId = interaction.values[0];
 
         await interaction.deferUpdate();
-
-        const event = await eventService.getEventById(eventId, true);
-
-        if (!event) {
-            await interaction.editReply({
-                content: 'Event not found.',
-                components: [],
-            });
-            return false;
-        }
 
         try {
             // Delete session channels and update status to cancelled
@@ -562,14 +479,13 @@ async function createInitialChannels(
         const snapshotAt = dateHelper.addHours(today, -2);
         let channelId = null;
 
+        let organinzerPanelMessageId = null;
+        let signupPanelMessageId = null;
         if (date <= fortyEightHoursFromNow) {
-            const sessionChannelName = `session-${date.toISOString().split('T')[0]}`;
-            const sessionChannel = await interaction.guild!.channels.create({
-                name: sessionChannelName,
-                type: ChannelType.GuildText,
-                parent: category.id,
-            });
+            const { sessionChannel, organinzerPanelMessage, signupPanelMessage } = await buildSessionChannel(interaction, category, date);
             channelId = sessionChannel.id;
+            organinzerPanelMessageId = organinzerPanelMessage.id;
+            signupPanelMessageId = signupPanelMessage.id;
             channelsCreated++;
         }
 
@@ -578,44 +494,70 @@ async function createInitialChannels(
             channelId: channelId,
             date: date,
             snapshotAt: snapshotAt,
+            controlPanelMessageId: organinzerPanelMessageId,
+            signUpPanelId: signupPanelMessageId,
         });
     }));
     return channelsCreated;
 }
 
-export async function createEventChannels(client: Client) {
-    const today: Date = dateHelper.today();
+async function buildSessionChannel(
+    interaction: ChatInputCommandInteraction | ModalSubmitInteraction | ButtonInteraction,
+    category: CategoryChannel,
+    date: Date): Promise<{ sessionChannel: TextChannel, organinzerPanelMessage: Message, signupPanelMessage: Message }> {
+    const sessionChannel = await createSessionChannel(interaction.guild!, category, date);
 
-    const events = await eventService.getActiveEvents(true);
+    const organinzerPanel = buildSessionOrganizerPanelMessage();
+    const organinzerPanelMessage = await sessionChannel.send({ ...organinzerPanel, flags: [MessageFlags.SuppressNotifications] });
+
+    const signupPanel = buildSessionSignUpPanelMessage();
+    const signupPanelMessage = await sessionChannel.send({ ...signupPanel, flags: [MessageFlags.SuppressNotifications] });
+    return { sessionChannel, organinzerPanelMessage, signupPanelMessage };
+}
+
+async function createSessionChannel(guild: Guild, category: CategoryChannel, date: Date) {
+    const sessionChannelName = `session-${date.toISOString().split('T')[0]}`;
+    const sessionChannel = await guild.channels.create({
+        name: sessionChannelName,
+        type: ChannelType.GuildText,
+        parent: category.id,
+    });
+    return sessionChannel;
+}
+
+export async function createNextDayEventChannels(
+    interaction: ChatInputCommandInteraction | ModalSubmitInteraction | ButtonInteraction,
+    events: Event[],
+    when: Date = dateHelper.addDays(dateHelper.tomorrow(), 1)
+): Promise<number> {
+    let channelsCreated = 0;
+    const guild = interaction.guild;
+    if (!guild) {
+        return 0;
+    }
 
     await Promise.all(events.map(async (event) => {
-        const guild = await client.guilds.fetch(event.guildId);
-        if (!guild) {
+        const categoryId = event.categoryId;
+        if (!categoryId) {
             return;
         }
-        const category = await guild.channels.fetch(event.categoryId!);
+        const category = await guild.channels.fetch(categoryId) as CategoryChannel;
         if (!category) {
             return;
         }
-        if (event.eventSessions.length !== 0) {
-            return;
-        }
 
-        const sessionChannelName = `session-${today.toISOString().split('T')[0]}`;
-        const sessionChannel = await guild.channels.create({
-            name: sessionChannelName,
-            type: ChannelType.GuildText,
-            parent: category.id,
-        });
+        const { sessionChannel, organinzerPanelMessage, signupPanelMessage } = await buildSessionChannel(interaction, category, when);
         await eventService.createEventSession({
             eventId: event.id,
             channelId: sessionChannel.id,
-            date: today,
-            snapshotAt: event.snapshotAt ?? dateHelper.yesterday(),
+            date: when,
+            snapshotAt: dateHelper.addHours(when, -2),
+            controlPanelMessageId: organinzerPanelMessage.id,
+            signUpPanelId: signupPanelMessage.id,
         });
-
+        channelsCreated++;
     }));
-
+    return channelsCreated;
 }
 
 async function deleteChannels(
