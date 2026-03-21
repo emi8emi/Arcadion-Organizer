@@ -572,8 +572,10 @@ export async function createUpcomingEventChannels(
         for (const session of event.eventSessions.filter(session => session.date.getUTCDate() <= when.getUTCDate())) {
             try {
                 if (session.status !== EventSessionStatus.UPCOMING) {
-                    if ((session.status === EventSessionStatus.OPEN || session.status === EventSessionStatus.CLOSED) && dateHelper.isSameDay(session.date, when)) {
-                        console.warn(`[createNextDayEventChannels] Session for event ${event.id} on ${when} is already ${session.status}`);
+                    if (session.status === EventSessionStatus.OPEN || session.status === EventSessionStatus.CLOSED) {
+                        if (dateHelper.isSameDay(session.date, when)) {
+                            console.warn(`[createNextDayEventChannels] Session for event ${event.id} on ${when} is already ${session.status}`);
+                        }
                         continue;
                     }
                     const err: Error = new Error(`[createNextDayEventChannels] No upcoming session found for event ${event.id} on ${when}`);

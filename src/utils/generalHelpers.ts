@@ -45,6 +45,11 @@ export const dateHelper = {
         if (!time) d.setUTCHours(0, 0, 0, 0);
         return d;
     },
+    addMs: (date: Date, ms: number): Date => {
+        const d = new Date(date);
+        d.setUTCMilliseconds(d.getUTCMilliseconds() + ms);
+        return d;
+    },
     addHours: (date: Date, hours: number): Date => {
         const d = new Date(date);
         d.setUTCHours(d.getUTCHours() + hours);

@@ -13,6 +13,7 @@ async function tickDaily() {
     await runDailyTasks();
 
     const delay = dateHelper.tomorrow(true).getTime() - Date.now();
+    console.log(`[eventsCron] Scheduling next daily tick at ${dateHelper.addMs(dateHelper.today(true), delay).toISOString()}`);
     setTimeout(async () => {
         await runDailyTasks();
         console.log(`[eventsCron] Daily tick`);
@@ -25,6 +26,7 @@ async function scheduleNextSnapshot() {
     if (!next) return;
 
     const delay = next.snapshotAt.getTime() - Date.now();
+    console.log(`[eventsCron] Scheduling next snapshot for event ${next.id} at ${dateHelper.addMs(dateHelper.today(true), delay).toISOString()}`);
     setTimeout(async () => {
         // TODO: run formation for session
         await runFormation(next);
