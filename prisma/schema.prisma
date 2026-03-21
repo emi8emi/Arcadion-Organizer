@@ -110,6 +110,15 @@ model EventOrganizer {
   @@map("EventEventOrganizer")
 }
 
+enum EventSessionStatus {
+  OPEN
+  LOCKED
+  CLOSED
+  COMPLETED
+  CANCELLED
+  UPCOMING
+}
+
 model EventSession {
   id      String @id @default(uuid())
   eventId String
@@ -119,7 +128,7 @@ model EventSession {
   controlPanelMessageId String?
 
   date       DateTime
-  status     String   @default("OPEN") // OPEN, FORMING, LOCKED, CLOSED, COMPLETED, CANCELLED
+  status     EventSessionStatus @default(UPCOMING)
   snapshotAt DateTime // ideally a day before the event, but can be changed by the organizer (default: 22:00 UTC a day before date)
 
   createdAt DateTime @default(now())

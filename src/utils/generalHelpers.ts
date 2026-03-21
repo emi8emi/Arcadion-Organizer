@@ -1,6 +1,6 @@
 export const getTimeSlot = (date: Date): string => {
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
+    const hours = date.getUTCHours();
+    const minutes = date.getUTCMinutes();
     return `${hours}:${minutes}`;
 }
 
@@ -24,35 +24,38 @@ export const dateHelper = {
         return date.toISOString().split('T')[1].split('.')[0];
     },
     formatHoursAndMinutes: (date: Date): string => {
-        const hours = date.getHours();
-        const minutes = date.getMinutes();
+        const hours = date.getUTCHours();
+        const minutes = date.getUTCMinutes();
         return `${hours}:${minutes}`;
     },
     today: (time: boolean = false): Date => {
         const d = new Date();
-        if (!time) d.setHours(0, 0, 0, 0);
+        if (!time) d.setUTCHours(0, 0, 0, 0);
         return d;
     },
     tomorrow: (time: boolean = false): Date => {
         const d = new Date();
         d.setDate(d.getDate() + 1);
-        if (!time) d.setHours(0, 0, 0, 0);
+        if (!time) d.setUTCHours(0, 0, 0, 0);
         return d;
     },
     yesterday: (time: boolean = false): Date => {
         const d = new Date();
         d.setDate(d.getDate() - 1);
-        if (!time) d.setHours(0, 0, 0, 0);
+        if (!time) d.setUTCHours(0, 0, 0, 0);
         return d;
     },
     addHours: (date: Date, hours: number): Date => {
         const d = new Date(date);
-        d.setHours(d.getHours() + hours);
+        d.setUTCHours(d.getUTCHours() + hours);
         return d;
     },
     addDays: (date: Date, days: number): Date => {
         const d = new Date(date);
-        d.setDate(d.getDate() + days);
+        d.setUTCDate(d.getUTCDate() + days);
         return d;
+    },
+    isSameDay: (date1: Date, date2: Date): boolean => {
+        return date1.getUTCDate() === date2.getUTCDate();
     },
 }

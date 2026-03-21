@@ -28,6 +28,7 @@ interface CreateEventSessionOptions {
     eventId: string;
     channelId: string | null;
     date: Date;
+    status: EventSessionStatus;
     snapshotAt: Date;
     controlPanelMessageId: string | null;
     signUpPanelId: string | null;
@@ -42,11 +43,11 @@ export enum EventStatus {
 
 export enum EventSessionStatus {
     OPEN = 'OPEN',
-    FORMING = 'FORMING',
     LOCKED = 'LOCKED',
     CLOSED = 'CLOSED',
     COMPLETED = 'COMPLETED',
-    CANCELLED = 'CANCELLED'
+    CANCELLED = 'CANCELLED',
+    UPCOMING = 'UPCOMING'
 }
 
 export const eventService = {
@@ -128,10 +129,22 @@ export const eventService = {
             include: { eventSessions: includeEventSessions }
         });
     },
-    async getEventsByGuildId(guildId: string, includeEventSessions: boolean = false) {
+    async getOpenEventSessions(includeEvent: boolean = false): Promise<EventSession & { event: Event } | null> {
+        return prisma.eventSession.findFirst({
+            where: {
+                status: EventSessionStatus.OPEN,
+            },
+            include: { event: includeEvent },
+            orderBy: { snapshotAt: 'asc' },
+        });
+    },
+    async getEventsByGuildIds(guildIds: string[], status?: EventStatus[], includeEventSessions: boolean = false) {
         return prisma.event.findMany({
             where: {
-                guildId,
+                guildId: {
+                    in: guildIds,
+                },
+                ...(status && { status: { in: status } }),
             },
             include: { eventSessions: includeEventSessions }
         });
@@ -168,10 +181,9 @@ export const eventService = {
             include: { eventSessions: includeEventSessions }
         });
     },
-    async getEventSessionByDate(eventId: string, date: Date, includeEventSessions: boolean = false) {
+    async getEventSessionByDate(eventId: string, date: Date) {
         return prisma.eventSession.findFirst({
-            where: { eventId: eventId, date: date },
-            include: { event: includeEventSessions }
+            where: { eventId: eventId, date: date }
         });
     },
     async updateEventPanelChannelId(id: string, panelChannelId: string) {
@@ -180,8 +192,15 @@ export const eventService = {
     async updateEventSession(id: string, eventSession: EventSession) {
         return prisma.eventSession.update({ where: { id }, data: eventSession });
     },
-    async updateEventSessionStatus(id: string, status: EventSessionStatus) {
-        return prisma.eventSession.update({ where: { id }, data: { status } });
+    async updateEventSessionStatus(ids: string[], status: EventSessionStatus) {
+        return prisma.eventSession.updateMany(
+            {
+                where: {
+                    id: { in: ids }
+                },
+                data: { status }
+            }
+        );
     },
     async updateEventStatus(id: string, status: EventStatus, updateEventSessions: boolean = false) {
         const event = await this.getEventById(id, false);

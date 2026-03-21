@@ -327,7 +327,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
                 endDate: endDate,
             });
 
-            const channelsCreated = await createInitialChannels(event, sessionDates, interaction, category);
+            const channelsCreated = await createEventSessions(event, sessionDates, interaction, category);
 
             await interaction.editReply({
                 content: `Event created successfully. Category <#${category.id}> was generated. ${channelsCreated} session channels were created immediately (remaining will be created 1 day before).`,
@@ -378,7 +378,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
 
         try {
             // Delete session channels and update status to cancelled
-            await deleteChannels(interaction, [eventId], true);
+            await deleteDiscordSession(interaction.guild!, [eventId], true);
             await eventService.updateEventStatus(eventId, EventStatus.CANCELLED, true);
         } catch (error) {
             console.error('Failed to delete Discord channels for event:', error);
@@ -392,7 +392,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
     }
     // -- /events view | button ------------------------------
     else if (interaction.isButton() && interaction.customId === 'events_view') {
-        const events = await eventService.getEventsByGuildId(interaction.guildId!);
+        const events = await eventService.getEventsByGuildIds([interaction.guildId!]);
         if (events.length === 0) {
             await interaction.reply({
                 content: 'No events found.',
@@ -446,7 +446,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
     return false;
 }
 
-async function createInitialChannels(
+async function createEventSessions(
     event: Event,
     sessionDates: Date[],
     interaction: ChatInputCommandInteraction | ModalSubmitInteraction,
@@ -462,7 +462,7 @@ async function createInitialChannels(
     // Create channels only for sessions happening within the next 48 hours
     // to avoid hitting Discord's 50 channels per category limit.
     const today = dateHelper.today();
-    const fortyEightHoursFromNow = dateHelper.addHours(today, 48);
+    const maxDay = dateHelper.addDays(today, 1);
     let channelsCreated = 0;
 
     const creatorPanel = await interaction.guild!.channels.create({
@@ -481,12 +481,14 @@ async function createInitialChannels(
 
         let organizerPanelMessageId = null;
         let signupPanelMessageId = null;
-        if (date <= fortyEightHoursFromNow) {
+        let status = EventSessionStatus.UPCOMING;
+        if (date <= maxDay) {
+            status = EventSessionStatus.OPEN;
             try {
-                const { sessionChannel, organizerPanelMessage, signupPanelMessage } = await createSessionChannel(interaction, category, date);
+                const { sessionChannel, organizerPanelMessage, signupPanelMessage } = await createSessionChannel(interaction.guild!, category, date);
                 channelId = sessionChannel.id;
-                organizerPanelMessageId = organizerPanelMessage.id;
-                signupPanelMessageId = signupPanelMessage.id;
+                organizerPanelMessageId = organizerPanelMessage?.id ?? null;
+                signupPanelMessageId = signupPanelMessage?.id ?? null;
                 channelsCreated++;
             } catch (error) {
                 console.log(`[createInitialChannels] Failed to create session channel for event ${event.id} on ${date}: ${error}`);
@@ -497,6 +499,7 @@ async function createInitialChannels(
             eventId: event.id,
             channelId: channelId,
             date: date,
+            status: status,
             snapshotAt: snapshotAt,
             controlPanelMessageId: organizerPanelMessageId,
             signUpPanelId: signupPanelMessageId,
@@ -506,16 +509,34 @@ async function createInitialChannels(
 }
 
 async function createSessionChannel(
-    interaction: ChatInputCommandInteraction | ModalSubmitInteraction | ButtonInteraction,
+    guild: Guild,
     category: CategoryChannel,
-    date: Date): Promise<{ sessionChannel: TextChannel, organizerPanelMessage: Message, signupPanelMessage: Message }> {
-    const sessionChannel = await makeSessionChannel(interaction.guild!, category, date);
+    date: Date): Promise<{ sessionChannel: TextChannel, organizerPanelMessage: Message | null, signupPanelMessage: Message | null }> {
+    let errors: string[] = [];
 
-    const organizerPanel = buildSessionOrganizerPanelMessage();
-    const organizerPanelMessage = await sessionChannel.send({ ...organizerPanel, flags: [MessageFlags.SuppressNotifications] });
+    let sessionChannel: TextChannel;
+    try {
+        sessionChannel = await makeSessionChannel(guild, category, date);
+    } catch (error) {
+        throw new Error(`[createSessionChannel] Failed to create session channel for event on ${date}: ${error}`);
+    }
 
-    const signupPanel = buildSessionSignUpPanelMessage();
-    const signupPanelMessage = await sessionChannel.send({ ...signupPanel, flags: [MessageFlags.SuppressNotifications] });
+    let organizerPanelMessage = null;
+    try {
+        const organizerPanel = buildSessionOrganizerPanelMessage();
+        organizerPanelMessage = await sessionChannel.send({ ...organizerPanel, flags: [MessageFlags.SuppressNotifications] });
+    } catch (error) {
+        errors.push(`[createSessionChannel] Failed to create organizer panel for event on ${date}: ${error}`);
+    }
+
+    let signupPanelMessage = null;
+    try {
+        const signupPanel = buildSessionSignUpPanelMessage();
+        signupPanelMessage = await sessionChannel.send({ ...signupPanel, flags: [MessageFlags.SuppressNotifications] });
+    } catch (error) {
+        errors.push(`[createSessionChannel] Failed to create signup panel for event on ${date}: ${error}`);
+    }
+
     return { sessionChannel, organizerPanelMessage, signupPanelMessage };
 }
 
@@ -529,13 +550,12 @@ async function makeSessionChannel(guild: Guild, category: CategoryChannel, date:
     return sessionChannel;
 }
 
-export async function createNextDayEventChannels(
-    interaction: ChatInputCommandInteraction | ModalSubmitInteraction | ButtonInteraction,
-    events: Event[],
+export async function createUpcomingEventChannels(
+    guild: Guild,
+    events: (Event & { eventSessions: EventSession[] })[],
     when: Date = dateHelper.addDays(dateHelper.today(), 2)
 ): Promise<number> {
     let channelsCreated = 0;
-    const guild = interaction.guild;
     if (!guild) {
         return 0;
     }
@@ -549,41 +569,52 @@ export async function createNextDayEventChannels(
         if (!category) {
             continue;
         }
-        try {
-            const { sessionChannel, organizerPanelMessage, signupPanelMessage } = await createSessionChannel(interaction, category, when);
-            const session = await eventService.getEventSessionByDate(event.id, when);
-            if (!session) {
-                continue;
+        for (const session of event.eventSessions.filter(session => session.date.getUTCDate() <= when.getUTCDate())) {
+            try {
+                if (session.status !== EventSessionStatus.UPCOMING) {
+                    if ((session.status === EventSessionStatus.OPEN || session.status === EventSessionStatus.CLOSED) && dateHelper.isSameDay(session.date, when)) {
+                        console.warn(`[createNextDayEventChannels] Session for event ${event.id} on ${when} is already ${session.status}`);
+                        continue;
+                    }
+                    const err: Error = new Error(`[createNextDayEventChannels] No upcoming session found for event ${event.id} on ${when}`);
+                    err.name = 'SessionNotFound';
+                    throw err;
+                }
+
+                const { sessionChannel, organizerPanelMessage, signupPanelMessage } = await createSessionChannel(guild, category, session.date);
+                await eventService.updateEventSession(
+                    session.id,
+                    {
+                        ...session,
+                        status: EventSessionStatus.OPEN,
+                        channelId: sessionChannel.id,
+                        snapshotAt: dateHelper.addHours(when, -1),
+                        controlPanelMessageId: organizerPanelMessage?.id ?? null,
+                        signUpPanelId: signupPanelMessage?.id ?? null,
+                    });
+                channelsCreated++;
+            } catch (error) {
+                if (error instanceof Error && error.name === 'SessionNotFound') {
+                    console.log(error);
+                    continue;
+                }
+                console.log(`[createNextDayEventChannels] Failed to create session channel for event ${event.id} on ${when}: ${error}`);
             }
-            await eventService.updateEventSession(
-                session.id,
-                {
-                    ...session,
-                    status: EventSessionStatus.OPEN,
-                    channelId: sessionChannel.id,
-                    snapshotAt: dateHelper.addHours(when, -1),
-                    controlPanelMessageId: organizerPanelMessage.id,
-                    signUpPanelId: signupPanelMessage.id,
-                });
-            channelsCreated++;
-        } catch (error) {
-            console.log(`[createNextDayEventChannels] Failed to create session channel for event ${event.id} on ${when}: ${error}`);
         }
     }
     return channelsCreated;
 }
 
-async function deleteChannels(
-    interaction: StringSelectMenuInteraction | ChatInputCommandInteraction | ButtonInteraction,
+async function deleteDiscordSession(
+    guild: Guild,
     eventIds?: string[],
     deleteCategory: boolean = false) {
-    const guild: Guild | null = interaction.guild;
     if (!guild) {
         throw Error("Guild not found");
     }
     const events = eventIds ?
         await eventService.getEventsByIds(eventIds, true)
-        : await eventService.getEventsByGuildId(guild.id, true);
+        : await eventService.getEventsByGuildIds([guild.id], undefined, true);
 
 
     if (!events) {
@@ -641,7 +672,7 @@ export async function deleteInactiveEventChannels(interaction: StringSelectMenuI
                     if (session.channelId) {
                         const channel = await interaction.guild?.channels.fetch(session.channelId).catch(() => null);
                         if (channel) {
-                            await eventService.updateEventSessionStatus(session.id, EventSessionStatus.COMPLETED);
+                            await eventService.updateEventSessionStatus([session.id], EventSessionStatus.COMPLETED);
                             await channel.delete();
                         }
                     }
@@ -662,7 +693,7 @@ async function deleteClosedEvents(interaction: ChatInputCommandInteraction) {
     if (!guildId) {
         return;
     }
-    const closedEvents = await eventService.getEventsByGuildId(guildId);
+    const closedEvents = await eventService.getEventsByGuildIds([guildId]);
     const eventsToDelete = closedEvents.map(event => event.id);
     eventService.deleteEventById(eventsToDelete);
 }
@@ -676,13 +707,63 @@ async function deleteAllEvents(interaction: ChatInputCommandInteraction) {
         return;
     }
     // interaction.deferReply();
-    const allEvents = await eventService.getEventsByGuildId(guild);
+    const allEvents = await eventService.getEventsByGuildIds([guild]);
     if (allEvents.length === 0) {
         interaction.editReply("No events found.");
         return;
     }
     const eventsToDelete = allEvents.map(event => event.id);
-    await deleteChannels(interaction, eventsToDelete, true);
+    await deleteDiscordSession(interaction.guild!, eventsToDelete, true);
     await eventService.deleteEventById(eventsToDelete);
     interaction.editReply("All events deleted.");
+}
+
+export async function endSessions(sessions: EventSession[], guildId: string) {
+    const sessionIds = sessions.map(session => session.id);
+    if (sessionIds.length === 0) {
+        return;
+    }
+
+    const guild = await client.guilds.fetch(guildId);
+    if (!guild) {
+        return;
+    }
+
+    // TODO: check if we should delete the channels or update the channel to reflect that the session is over
+    for (const session of sessions) {
+        if (session.channelId) {
+            const channel = await guild.channels.fetch(session.channelId).catch(() => null);
+            if (channel) {
+                try {
+                    await channel.delete();
+                } catch (error) {
+                    console.error(`[events] Failed to delete Discord channels for session: ${session.id}`, error);
+                }
+            }
+        }
+    }
+
+    try {
+        await eventService.updateEventSessionStatus(sessionIds, EventSessionStatus.COMPLETED);
+    } catch (error) {
+        console.error(`[events] Failed to update event session status for sessions: ${sessionIds}`, error);
+    }
+}
+
+export async function startSessions(events: (Event & { eventSessions: EventSession[] })[], guildId: string) {
+    try {
+        let guild: Guild | null = null;
+        try {
+            guild = await client.guilds.fetch(guildId);
+        } catch (error) {
+            console.error(`[events] Failed to fetch guild ${guildId}`, error);
+        }
+        if (!guild) {
+            return;
+        }
+
+        await createUpcomingEventChannels(guild, events);
+    } catch (error) {
+        console.error(`[events] Failed to start sessions for guild ${guildId}`, error);
+    }
 }
