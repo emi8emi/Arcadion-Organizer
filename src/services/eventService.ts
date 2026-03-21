@@ -168,6 +168,12 @@ export const eventService = {
             include: { eventSessions: includeEventSessions }
         });
     },
+    async getEventSessionByDate(eventId: string, date: Date, includeEventSessions: boolean = false) {
+        return prisma.eventSession.findFirst({
+            where: { eventId: eventId, date: date },
+            include: { event: includeEventSessions }
+        });
+    },
     async updateEventPanelChannelId(id: string, panelChannelId: string) {
         return prisma.event.update({ where: { id }, data: { panelChannelId } });
     },

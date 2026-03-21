@@ -475,18 +475,22 @@ async function createInitialChannels(
     await eventService.updateEventPanelChannelId(event.id, creatorPanel.id);
     channelsCreated++;
 
-    await Promise.all(sessionDates.map(async (date) => {
-        const snapshotAt = dateHelper.addHours(today, -2);
+    for (const date of sessionDates) {
+        const snapshotAt = dateHelper.addHours(date, -2);
         let channelId = null;
 
-        let organinzerPanelMessageId = null;
+        let organizerPanelMessageId = null;
         let signupPanelMessageId = null;
         if (date <= fortyEightHoursFromNow) {
-            const { sessionChannel, organinzerPanelMessage, signupPanelMessage } = await buildSessionChannel(interaction, category, date);
-            channelId = sessionChannel.id;
-            organinzerPanelMessageId = organinzerPanelMessage.id;
-            signupPanelMessageId = signupPanelMessage.id;
-            channelsCreated++;
+            try {
+                const { sessionChannel, organizerPanelMessage, signupPanelMessage } = await createSessionChannel(interaction, category, date);
+                channelId = sessionChannel.id;
+                organizerPanelMessageId = organizerPanelMessage.id;
+                signupPanelMessageId = signupPanelMessage.id;
+                channelsCreated++;
+            } catch (error) {
+                console.log(`[createInitialChannels] Failed to create session channel for event ${event.id} on ${date}: ${error}`);
+            }
         }
 
         await eventService.createEventSession({
@@ -494,28 +498,28 @@ async function createInitialChannels(
             channelId: channelId,
             date: date,
             snapshotAt: snapshotAt,
-            controlPanelMessageId: organinzerPanelMessageId,
+            controlPanelMessageId: organizerPanelMessageId,
             signUpPanelId: signupPanelMessageId,
         });
-    }));
+    }
     return channelsCreated;
 }
 
-async function buildSessionChannel(
+async function createSessionChannel(
     interaction: ChatInputCommandInteraction | ModalSubmitInteraction | ButtonInteraction,
     category: CategoryChannel,
-    date: Date): Promise<{ sessionChannel: TextChannel, organinzerPanelMessage: Message, signupPanelMessage: Message }> {
-    const sessionChannel = await createSessionChannel(interaction.guild!, category, date);
+    date: Date): Promise<{ sessionChannel: TextChannel, organizerPanelMessage: Message, signupPanelMessage: Message }> {
+    const sessionChannel = await makeSessionChannel(interaction.guild!, category, date);
 
-    const organinzerPanel = buildSessionOrganizerPanelMessage();
-    const organinzerPanelMessage = await sessionChannel.send({ ...organinzerPanel, flags: [MessageFlags.SuppressNotifications] });
+    const organizerPanel = buildSessionOrganizerPanelMessage();
+    const organizerPanelMessage = await sessionChannel.send({ ...organizerPanel, flags: [MessageFlags.SuppressNotifications] });
 
     const signupPanel = buildSessionSignUpPanelMessage();
     const signupPanelMessage = await sessionChannel.send({ ...signupPanel, flags: [MessageFlags.SuppressNotifications] });
-    return { sessionChannel, organinzerPanelMessage, signupPanelMessage };
+    return { sessionChannel, organizerPanelMessage, signupPanelMessage };
 }
 
-async function createSessionChannel(guild: Guild, category: CategoryChannel, date: Date) {
+async function makeSessionChannel(guild: Guild, category: CategoryChannel, date: Date) {
     const sessionChannelName = `session-${date.toISOString().split('T')[0]}`;
     const sessionChannel = await guild.channels.create({
         name: sessionChannelName,
@@ -528,7 +532,7 @@ async function createSessionChannel(guild: Guild, category: CategoryChannel, dat
 export async function createNextDayEventChannels(
     interaction: ChatInputCommandInteraction | ModalSubmitInteraction | ButtonInteraction,
     events: Event[],
-    when: Date = dateHelper.addDays(dateHelper.tomorrow(), 1)
+    when: Date = dateHelper.addDays(dateHelper.today(), 2)
 ): Promise<number> {
     let channelsCreated = 0;
     const guild = interaction.guild;
@@ -536,27 +540,36 @@ export async function createNextDayEventChannels(
         return 0;
     }
 
-    await Promise.all(events.map(async (event) => {
+    for (const event of events) {
         const categoryId = event.categoryId;
         if (!categoryId) {
-            return;
+            continue;
         }
         const category = await guild.channels.fetch(categoryId) as CategoryChannel;
         if (!category) {
-            return;
+            continue;
         }
-
-        const { sessionChannel, organinzerPanelMessage, signupPanelMessage } = await buildSessionChannel(interaction, category, when);
-        await eventService.createEventSession({
-            eventId: event.id,
-            channelId: sessionChannel.id,
-            date: when,
-            snapshotAt: dateHelper.addHours(when, -2),
-            controlPanelMessageId: organinzerPanelMessage.id,
-            signUpPanelId: signupPanelMessage.id,
-        });
-        channelsCreated++;
-    }));
+        try {
+            const { sessionChannel, organizerPanelMessage, signupPanelMessage } = await createSessionChannel(interaction, category, when);
+            const session = await eventService.getEventSessionByDate(event.id, when);
+            if (!session) {
+                continue;
+            }
+            await eventService.updateEventSession(
+                session.id,
+                {
+                    ...session,
+                    status: EventSessionStatus.OPEN,
+                    channelId: sessionChannel.id,
+                    snapshotAt: dateHelper.addHours(when, -1),
+                    controlPanelMessageId: organizerPanelMessage.id,
+                    signUpPanelId: signupPanelMessage.id,
+                });
+            channelsCreated++;
+        } catch (error) {
+            console.log(`[createNextDayEventChannels] Failed to create session channel for event ${event.id} on ${when}: ${error}`);
+        }
+    }
     return channelsCreated;
 }
 
@@ -579,38 +592,29 @@ async function deleteChannels(
 
     for (const event of events) {
         if (!event) {
-            throw Error("Event not found");
+            continue;
         }
 
         if (!event.categoryId) {
-            return;
+            continue;
         }
 
         try {
-            await Promise.all(event.eventSessions.map(async (session) => {
+            for (const session of event.eventSessions) {
                 if (session.channelId) {
                     await guild.channels.delete(session.channelId).catch((error) => {
-                        if (error.code === 10003) {
-                            return null;
-                        }
                         throw error;
                     });
                 }
-            }));
+            }
             if (event.panelChannelId) {
                 await guild.channels.delete(event.panelChannelId).catch((error) => {
-                    if (error.code === 10003) {
-                        return null;
-                    }
                     throw error;
                 });
             }
             if (deleteCategory) {
                 if (event.categoryId) {
                     await guild.channels.delete(event.categoryId).catch((error) => {
-                        if (error.code === 10003) {
-                            return null;
-                        }
                         throw error;
                     });
                 }
