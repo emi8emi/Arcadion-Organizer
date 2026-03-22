@@ -35,13 +35,13 @@ export const dateHelper = {
     },
     tomorrow: (time: boolean = false): Date => {
         const d = new Date();
-        d.setDate(d.getDate() + 1);
+        d.setUTCDate(d.getUTCDate() + 1);
         if (!time) d.setUTCHours(0, 0, 0, 0);
         return d;
     },
     yesterday: (time: boolean = false): Date => {
         const d = new Date();
-        d.setDate(d.getDate() - 1);
+        d.setUTCDate(d.getUTCDate() - 1);
         if (!time) d.setUTCHours(0, 0, 0, 0);
         return d;
     },
