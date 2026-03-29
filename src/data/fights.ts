@@ -5,7 +5,7 @@
 
 export interface Fight {
     name: string;
-    value: string;
+    id: string;
     fflogs_id: number[] | undefined;
     progPoints: ProgPoint[];
 }
@@ -104,28 +104,28 @@ export const FIGHTS_WITH_TIERS: Record<string, RaidTier> = {
         tier: 'Dawntrail',
         fights: [
             {
-                name: 'M1S - Black Cat', value: 'm1s', progPoints: [
+                name: 'M1S - Black Cat', id: 'm1s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [93]
             },
             {
-                name: 'M2S - Honey B. Lovely', value: 'm2s', progPoints: [
+                name: 'M2S - Honey B. Lovely', id: 'm2s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [94]
             },
             {
-                name: 'M3S - Brute Bomber', value: 'm3s', progPoints: [
+                name: 'M3S - Brute Bomber', id: 'm3s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [95]
             },
             {
-                name: 'M4S - Wicked Thunder', value: 'm4s', progPoints: [
+                name: 'M4S - Wicked Thunder', id: 'm4s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
@@ -137,28 +137,28 @@ export const FIGHTS_WITH_TIERS: Record<string, RaidTier> = {
         tier: 'Dawntrail',
         fights: [
             {
-                name: 'M5S - Dancing Green', value: 'm5s', progPoints: [
+                name: 'M5S - Dancing Green', id: 'm5s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [97]
             },
             {
-                name: 'M6S - Sugar Riot', value: 'm6s', progPoints: [
+                name: 'M6S - Sugar Riot', id: 'm6s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [98]
             },
             {
-                name: 'M7S - Brute Abombinator', value: 'm7s', progPoints: [
+                name: 'M7S - Brute Abombinator', id: 'm7s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [99]
             },
             {
-                name: 'M8S - Howling Blade', value: 'm8s', progPoints: [
+                name: 'M8S - Howling Blade', id: 'm8s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
@@ -171,7 +171,7 @@ export const FIGHTS_WITH_TIERS: Record<string, RaidTier> = {
         fights: [
             {
                 name: 'M9S - Vamp Fatale',
-                value: 'm9s',
+                id: 'm9s',
                 progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
@@ -180,7 +180,7 @@ export const FIGHTS_WITH_TIERS: Record<string, RaidTier> = {
             },
             {
                 name: 'M10S - Red Hot and Deep Blue',
-                value: 'm10s',
+                id: 'm10s',
                 progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
@@ -189,7 +189,7 @@ export const FIGHTS_WITH_TIERS: Record<string, RaidTier> = {
             },
             {
                 name: 'M11S - The Tyrant',
-                value: 'm11s',
+                id: 'm11s',
                 progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
@@ -198,7 +198,7 @@ export const FIGHTS_WITH_TIERS: Record<string, RaidTier> = {
             },
             {
                 name: 'M12S - Lindwurm',
-                value: 'm12s',
+                id: 'm12s',
                 progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
@@ -213,28 +213,28 @@ export const FIGHTS_WITH_TIERS: Record<string, RaidTier> = {
         tier: 'Endwalker',
         fights: [
             {
-                name: 'P9S - Kokytos', value: 'p9s', progPoints: [
+                name: 'P9S - Kokytos', id: 'p9s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [88]
             },
             {
-                name: 'P10S - Pandaemonium', value: 'p10s', progPoints: [
+                name: 'P10S - Pandaemonium', id: 'p10s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [89]
             },
             {
-                name: 'P11S - Themis', value: 'p11s', progPoints: [
+                name: 'P11S - Themis', id: 'p11s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [90]
             },
             {
-                name: 'P12S - Athena', value: 'p12s', progPoints: [
+                name: 'P12S - Athena', id: 'p12s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
@@ -247,28 +247,28 @@ export const FIGHTS_WITH_TIERS: Record<string, RaidTier> = {
         tier: 'Endwalker',
         fights: [
             {
-                name: 'P5S - Proto-Carbuncle', value: 'p5s', progPoints: [
+                name: 'P5S - Proto-Carbuncle', id: 'p5s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [83]
             },
             {
-                name: 'P6S - Hegemone', value: 'p6s', progPoints: [
+                name: 'P6S - Hegemone', id: 'p6s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [84]
             },
             {
-                name: 'P7S - Agdistis', value: 'p7s', progPoints: [
+                name: 'P7S - Agdistis', id: 'p7s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [85]
             },
             {
-                name: 'P8S - Hephaistos', value: 'p8s', progPoints: [
+                name: 'P8S - Hephaistos', id: 'p8s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
@@ -281,28 +281,28 @@ export const FIGHTS_WITH_TIERS: Record<string, RaidTier> = {
         tier: 'Endwalker',
         fights: [
             {
-                name: 'P1S - Erichthonios', value: 'p1s', progPoints: [
+                name: 'P1S - Erichthonios', id: 'p1s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [78]
             },
             {
-                name: 'P2S - Hippokampos', value: 'p2s', progPoints: [
+                name: 'P2S - Hippokampos', id: 'p2s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [79]
             },
             {
-                name: 'P3S - Phoinix', value: 'p3s', progPoints: [
+                name: 'P3S - Phoinix', id: 'p3s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [80]
             },
             {
-                name: 'P4S - Hesperos', value: 'p4s', progPoints: [
+                name: 'P4S - Hesperos', id: 'p4s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
@@ -315,28 +315,28 @@ export const FIGHTS_WITH_TIERS: Record<string, RaidTier> = {
         tier: 'Shadowbringers',
         fights: [
             {
-                name: 'E9S - Cloud of Darkness', value: 'e9s', progPoints: [
+                name: 'E9S - Cloud of Darkness', id: 'e9s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [73]
             },
             {
-                name: 'E10S - Shadowkeeper', value: 'e10s', progPoints: [
+                name: 'E10S - Shadowkeeper', id: 'e10s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [74]
             },
             {
-                name: 'E11S - Fatebreaker', value: 'e11s', progPoints: [
+                name: 'E11S - Fatebreaker', id: 'e11s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [75]
             },
             {
-                name: 'E12S - Oracle of Darkness', value: 'e12s', progPoints: [
+                name: 'E12S - Oracle of Darkness', id: 'e12s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
@@ -349,28 +349,28 @@ export const FIGHTS_WITH_TIERS: Record<string, RaidTier> = {
         tier: 'Shadowbringers',
         fights: [
             {
-                name: 'E5S - Ramuh', value: 'e5s', progPoints: [
+                name: 'E5S - Ramuh', id: 'e5s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [69]
             },
             {
-                name: 'E6S - Ifrit/Garuda', value: 'e6s', progPoints: [
+                name: 'E6S - Ifrit/Garuda', id: 'e6s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [70]
             },
             {
-                name: 'E7S - Idol of Darkness', value: 'e7s', progPoints: [
+                name: 'E7S - Idol of Darkness', id: 'e7s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [71]
             },
             {
-                name: 'E8S - Shiva', value: 'e8s', progPoints: [
+                name: 'E8S - Shiva', id: 'e8s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
@@ -383,28 +383,28 @@ export const FIGHTS_WITH_TIERS: Record<string, RaidTier> = {
         tier: 'Shadowbringers',
         fights: [
             {
-                name: 'E1S - Eden Prime', value: 'e1s', progPoints: [
+                name: 'E1S - Eden Prime', id: 'e1s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [65]
             },
             {
-                name: 'E2S - Voidwalker', value: 'e2s', progPoints: [
+                name: 'E2S - Voidwalker', id: 'e2s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [66]
             },
             {
-                name: 'E3S - Leviathan', value: 'e3s', progPoints: [
+                name: 'E3S - Leviathan', id: 'e3s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [67]
             },
             {
-                name: 'E4S - Titan', value: 'e4s', progPoints: [
+                name: 'E4S - Titan', id: 'e4s', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
@@ -418,7 +418,7 @@ export const FIGHTS_WITH_TIERS: Record<string, RaidTier> = {
         tier: 'Ultimate',
         fights: [
             {
-                name: 'The Unending Coil of Bahamut (Ultimate)', value: 'ucob', progPoints: [
+                name: 'The Unending Coil of Bahamut (Ultimate)', id: 'ucob', progPoints: [
                     P1_PROG_POINT,
                     P2_PROG_POINT,
                     P3_PROG_POINT,
@@ -430,7 +430,7 @@ export const FIGHTS_WITH_TIERS: Record<string, RaidTier> = {
                 fflogs_id: [1073]
             },
             {
-                name: 'The Weapon\'s Refrain (Ultimate)', value: 'uwu', progPoints: [
+                name: 'The Weapon\'s Refrain (Ultimate)', id: 'uwu', progPoints: [
                     P1_PROG_POINT,
                     P2_PROG_POINT,
                     P3_PROG_POINT,
@@ -442,7 +442,7 @@ export const FIGHTS_WITH_TIERS: Record<string, RaidTier> = {
                 fflogs_id: [1074]
             },
             {
-                name: 'The Epic of Alexander (Ultimate)', value: 'tea', progPoints: [
+                name: 'The Epic of Alexander (Ultimate)', id: 'tea', progPoints: [
                     P1_PROG_POINT,
                     P2_PROG_POINT,
                     P3_PROG_POINT,
@@ -454,7 +454,7 @@ export const FIGHTS_WITH_TIERS: Record<string, RaidTier> = {
                 fflogs_id: [1075]
             },
             {
-                name: 'Dragonsong\'s Reprise (Ultimate)', value: 'dsr', progPoints: [
+                name: 'Dragonsong\'s Reprise (Ultimate)', id: 'dsr', progPoints: [
                     P1_PROG_POINT,
                     P2_PROG_POINT,
                     P3_PROG_POINT,
@@ -466,7 +466,7 @@ export const FIGHTS_WITH_TIERS: Record<string, RaidTier> = {
                 fflogs_id: [1076]
             },
             {
-                name: 'The Omega Protocol (Ultimate)', value: 'top', progPoints: [
+                name: 'The Omega Protocol (Ultimate)', id: 'top', progPoints: [
                     P1_PROG_POINT,
                     P2_PROG_POINT,
                     createAbilityProgPoint('Party Synergy', 20),
@@ -479,7 +479,7 @@ export const FIGHTS_WITH_TIERS: Record<string, RaidTier> = {
                 fflogs_id: [1077]
             },
             {
-                name: 'Futures Rewritten (Ultimate)', value: 'fru', progPoints: [
+                name: 'Futures Rewritten (Ultimate)', id: 'fru', progPoints: [
                     P1_PROG_POINT,
                     P2_PROG_POINT,
                     P3_PROG_POINT,
@@ -498,49 +498,49 @@ export const FIGHTS_WITH_TIERS: Record<string, RaidTier> = {
         tier: 'Dawntrail',
         fights: [
             {
-                name: 'Worqor Lar Dor (Extreme)', value: 'ex1_dt', progPoints: [
+                name: 'Worqor Lar Dor (Extreme)', id: 'ex1_dt', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [1071]
             },
             {
-                name: 'Everkeep (Extreme)', value: 'ex2_dt', progPoints: [
+                name: 'Everkeep (Extreme)', id: 'ex2_dt', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [1072]
             },
             {
-                name: 'Interphos (Extreme)', value: 'ex3_dt', progPoints: [
+                name: 'Interphos (Extreme)', id: 'ex3_dt', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [1078]
             },
             {
-                name: 'Extreme Trial 4 (DT)', value: 'ex4_dt', progPoints: [
+                name: 'Extreme Trial 4 (DT)', id: 'ex4_dt', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [1080]
             },
             {
-                name: 'Extreme Trial 5 (DT)', value: 'ex5_dt', progPoints: [
+                name: 'Extreme Trial 5 (DT)', id: 'ex5_dt', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [1081]
             },
             {
-                name: 'Extreme Trial 6 (DT)', value: 'ex6_dt', progPoints: [
+                name: 'Extreme Trial 6 (DT)', id: 'ex6_dt', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [1082]
             },
             {
-                name: 'Extreme Trial 7 (DT)', value: 'ex7_dt', progPoints: [
+                name: 'Extreme Trial 7 (DT)', id: 'ex7_dt', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
@@ -553,49 +553,49 @@ export const FIGHTS_WITH_TIERS: Record<string, RaidTier> = {
         tier: 'Endwalker',
         fights: [
             {
-                name: 'The Minstrel\'s Ballad: Zodiark\'s Fall', value: 'ex1_ew', progPoints: [
+                name: 'The Minstrel\'s Ballad: Zodiark\'s Fall', id: 'ex1_ew', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [1058]
             },
             {
-                name: 'The Minstrel\'s Ballad: Hydaelyn\'s Call', value: 'ex2_ew', progPoints: [
+                name: 'The Minstrel\'s Ballad: Hydaelyn\'s Call', id: 'ex2_ew', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [1059]
             },
             {
-                name: 'The Minstrel\'s Ballad: Endsinger\'s Aria', value: 'ex3_ew', progPoints: [
+                name: 'The Minstrel\'s Ballad: Endsinger\'s Aria', id: 'ex3_ew', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [1063]
             },
             {
-                name: 'Storm\'s Crown (Extreme)', value: 'ex4_ew', progPoints: [
+                name: 'Storm\'s Crown (Extreme)', id: 'ex4_ew', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [1066]
             },
             {
-                name: 'Mount Ordeals (Extreme)', value: 'ex5_ew', progPoints: [
+                name: 'Mount Ordeals (Extreme)', id: 'ex5_ew', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [1067]
             },
             {
-                name: 'The Voidcast Savior (Extreme)', value: 'ex6_ew', progPoints: [
+                name: 'The Voidcast Savior (Extreme)', id: 'ex6_ew', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
                 fflogs_id: [1069]
             },
             {
-                name: 'The Abyssal Fracture (Extreme)', value: 'ex7_ew', progPoints: [
+                name: 'The Abyssal Fracture (Extreme)', id: 'ex7_ew', progPoints: [
                     CLEAR_PROG_POINT,
                     NONE_PROG_POINT
                 ],
@@ -605,7 +605,7 @@ export const FIGHTS_WITH_TIERS: Record<string, RaidTier> = {
     }
 };
 
-export const FIGHTS: Record<string, Fight> = Object.fromEntries(Object.values(FIGHTS_WITH_TIERS).flatMap(tier => tier.fights.map(fight => [fight.value, fight])))
+export const FIGHTS: Record<string, Fight> = Object.fromEntries(Object.values(FIGHTS_WITH_TIERS).flatMap(tier => tier.fights.map(fight => [fight.id, fight])))
 
 export const FIGHTS_WITH_TIERS_ARRAY: RaidTier[] = Object.values(FIGHTS_WITH_TIERS);
 export const FIGHTS_ARRAY: Fight[] = Object.values(FIGHTS);
@@ -620,7 +620,7 @@ export function getAllFightChoices(): Fight[] {
     for (const tierData of FIGHTS_WITH_TIERS_ARRAY) {
         for (const fight of tierData.fights) {
             choices.push({
-                name: fight.name, value: fight.value, progPoints: fight.progPoints,
+                name: fight.name, id: fight.id, progPoints: fight.progPoints,
                 fflogs_id: fight.fflogs_id
             });
         }
@@ -628,8 +628,8 @@ export function getAllFightChoices(): Fight[] {
     return choices;
 }
 
-export function getFightID(name: string): number[] | undefined {
-    const found = FIGHTS[name];
+export function getFightID(fightName: string): number[] | undefined {
+    const found = FIGHTS[fightName];
     if (found && found.fflogs_id !== undefined) return found.fflogs_id;
     return undefined;
 }
@@ -653,14 +653,14 @@ export function getFightName(idx: string): string | undefined {
     return undefined;
 }
 
-export function getFightProgPoints(value: string): ProgPoint[] {
-    const found = FIGHTS[value];
+export function getFightProgPoints(id: string): ProgPoint[] {
+    const found = FIGHTS[id];
     if (found) return found.progPoints;
     return DEFAULT_PROG_POINTS;
 }
 
-export function getProgPoint(fightName: string, name: string): ProgPoint {
-    const found = FIGHTS[fightName].progPoints.find(point => point.name.toLowerCase() === name.toLowerCase());
+export function getProgPoint(fightName: string, progPointName: string): ProgPoint {
+    const found = FIGHTS[fightName].progPoints.find(point => point.name.toLowerCase() === progPointName.toLowerCase());
     if (found) return found;
     return NONE_PROG_POINT;
 }

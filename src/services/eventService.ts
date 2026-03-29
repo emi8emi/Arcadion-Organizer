@@ -1,4 +1,6 @@
-import { Event, EventSession } from "../generated/prisma/client.js";
+import { eventCache } from "../cache/eventCache.js";
+import { PendingSignUp } from "../commands/eventsPanel.js";
+import { Event, EventSession, EventSignup, EventSignupStatus, Job, Prisma } from "../generated/prisma/client.js";
 import { prisma } from "../index.js";
 import { dateHelper } from "../utils/generalHelpers.js";
 
@@ -25,6 +27,7 @@ interface CreateEventOptions {
 }
 
 interface CreateEventSessionOptions {
+    id?: string;
     eventId: string;
     channelId: string | null;
     date: Date;
@@ -115,6 +118,24 @@ export const eventService = {
             include: { eventSessions: includeEventSessions }
         });
     },
+    async getEventIdByPanelChannelId(panelChannelId: string) {
+        const cachedEvent = await eventCache.getByPanelChannelId(panelChannelId);
+        if (cachedEvent && cachedEvent.eventSessions) {
+            return cachedEvent;
+        }
+
+        const event = await prisma.event.findFirst({
+            where: {
+                panelChannelId,
+            },
+            include: { eventSessions: true }
+        });
+
+        if (event) {
+            eventCache.set(event);
+        }
+        return event;
+    },
     async getCancellableEvents(creatorId: string, includeEventSessions: boolean = false) {
         return prisma.event.findMany({
             where: {
@@ -170,20 +191,59 @@ export const eventService = {
         });
     },
     async getEventById(id: string, includeEventSessions: boolean = false) {
-        return prisma.event.findUnique({
+        const cachedEvent = await eventCache.get(id);
+        if (cachedEvent) {
+            return cachedEvent;
+        }
+
+        const event = await prisma.event.findUnique({
             where: { id },
             include: { eventSessions: includeEventSessions }
         });
+        if (event) {
+            eventCache.set(event);
+        }
+        return event;
     },
     async getEventsByIds(ids: string[], includeEventSessions: boolean = false) {
-        return prisma.event.findMany({
+        const cachedEvents = await Promise.all(ids.map(id => eventCache.get(id)));
+        if (cachedEvents.every(event =>
+            event !== null
+            && (!includeEventSessions || event.eventSessions)
+        )) {
+            return cachedEvents;
+        }
+
+        const events = await prisma.event.findMany({
             where: { id: { in: ids } },
             include: { eventSessions: includeEventSessions }
         });
+        events.forEach(event => eventCache.set(event));
+        return events;
+    },
+    async getEventBySessionId(sessionId: string, includeEventSessions: boolean = false) {
+        const cachedEvent = await eventCache.get(sessionId);
+        if (cachedEvent) {
+            return cachedEvent;
+        }
+
+        const event = await prisma.event.findFirst({
+            where: { eventSessions: { some: { id: sessionId } } },
+            include: { eventSessions: includeEventSessions }
+        });
+        if (event) {
+            eventCache.set(event);
+        }
+        return event;
     },
     async getEventSessionByDate(eventId: string, date: Date) {
         return prisma.eventSession.findFirst({
             where: { eventId: eventId, date: date }
+        });
+    },
+    async getEventSessionById(id: string) {
+        return prisma.eventSession.findUnique({
+            where: { id }
         });
     },
     async updateEventPanelChannelId(id: string, panelChannelId: string) {
@@ -201,6 +261,49 @@ export const eventService = {
                 data: { status }
             }
         );
+    },
+    async signUpForSession(sessionId: string, signUp: PendingSignUp) {
+        const existingSignup = await prisma.eventSignup.findFirst({
+            where: {
+                sessionId,
+                userId: signUp.userId,
+            },
+        });
+
+        const data: Prisma.EventSignupUncheckedCreateWithoutSessionInput = {
+            userId: signUp.userId,
+            characterId: signUp.characterId!,
+            availableFrom: signUp.availableTime.from!.toJSDate(),
+            availableTo: signUp.availableTime.until!.toJSDate(),
+            progPoint: signUp.progPoint,
+            willingness: signUp.willingness,
+            dailyLimit: signUp.dailyLimit,
+            isHelper: signUp.isHelper,
+            helperProgPoints: signUp.helperProgPoints?.join(','),
+            status: EventSignupStatus.PENDING,
+            partiesAssigned: 0,
+            jobs: {
+                create: signUp.selectedJobs!.map((job) => ({
+                    job: job.name,
+                    role: job.naturalRole,
+                    modifier: job.modifier,
+                })),
+            },
+        };
+
+        if (existingSignup) {
+            return prisma.eventSignup.update({
+                where: { id: existingSignup.id },
+                data: {
+                    ...data,
+                }
+            });
+        }
+
+        return prisma.eventSession.update({
+            where: { id: sessionId },
+            data: { eventSignups: { create: data } }
+        });
     },
     async updateEventStatus(id: string, status: EventStatus, updateEventSessions: boolean = false) {
         const event = await this.getEventById(id, false);

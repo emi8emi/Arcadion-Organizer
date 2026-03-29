@@ -38,6 +38,7 @@ const EVENTS_COMPONENT_IDS = [
     'events_create_fight_id',
     'events_create_modal',
     'events_cancel',
+    'events_cancel_confirm',
     'events_cancel_select',
     'events_edit',
     'events_close',
@@ -46,6 +47,14 @@ const EVENTS_COMPONENT_IDS = [
 
 const EVENTS_PANEL_COMPONENT_IDS = [
     'events_panel_party',
+    'events_cancel_btn',
+    'events_sign_up_btn_',
+    'events_sign_up_role_select_',
+    'events_sign_up_modal_',
+    'events_sign_up_job_btn_',
+    'events_sign_up_job_modal_',
+    'events_sign_up_confirm_btn_',
+    'events_sign_up_confirmation_modal_'
 ];
 
 export default {
@@ -121,7 +130,7 @@ export default {
         }
 
         // ── Event panel components (buttons / select menus / modal submits) ────────────────────
-        if ((interaction.isButton() || interaction.isStringSelectMenu() || interaction.isModalSubmit()) && EVENTS_PANEL_COMPONENT_IDS.includes(interaction.customId)) {
+        if ((interaction.isButton() || interaction.isStringSelectMenu() || interaction.isModalSubmit()) && EVENTS_PANEL_COMPONENT_IDS.some(id => interaction.customId.startsWith(id))) {
             try {
                 await eventsPanelCommand.handleComponent(interaction as any);
             } catch (err) {

@@ -92,10 +92,10 @@ model Event {
   updatedAt DateTime @updatedAt
 
   creator       User             @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  eventRoles    EventRoles?
   organizers    EventOrganizer[]
+  helpers       EventHelper[]
   eventSessions EventSession[]
-
-  @@map("Event")
 }
 
 model EventOrganizer {
@@ -107,7 +107,28 @@ model EventOrganizer {
   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@unique([eventId, userId])
-  @@map("EventEventOrganizer")
+}
+
+model EventHelper {
+  id      String @id @default(uuid())
+  eventId String @unique
+  userId  String
+  addedBy String
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+}
+
+model EventRoles {
+  id              String @id @default(uuid())
+  eventId         String @unique
+  helperRoleId    String // id separated by commas
+  organizerRoleId String // id separated by commas
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, id])
 }
 
 enum EventSessionStatus {
@@ -140,6 +161,21 @@ model EventSession {
   eventParties EventParty[]
 }
 
+enum Willingness {
+  VERY_HIGH
+  HIGH
+  MEDIUM
+  LOW
+  VERY_LOW
+  NONE
+}
+
+enum EventSignupStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
 model EventSignup {
   id        String @id @default(uuid())
   sessionId String
@@ -147,12 +183,13 @@ model EventSignup {
 
   jobs             Jobs[]
   progPoint        String?
-  willingness      String? // "High = Extremely", "VeryHigh = Very", "Medium = Moderately", "Low = More than a lil", "VeryLow = A little", "None = Not at all" - null if isHelper is true
-  isHelper         Boolean  @default(false)
+  willingness      Willingness? // "High = Extremely", "VeryHigh = Very", "Medium = Moderately", "Low = More than a lil", "VeryLow = A little", "None = Not at all" - null if isHelper is true
+  dailyLimit       Int          @default(2)
+  isHelper         Boolean      @default(false)
   helperProgPoints String? // String[] - null if isHelper is false and willingness != "None"
   availableFrom    DateTime
   availableTo      DateTime
-  dailyLimit       Int      @default(2)
+  characterId      String
 
   status          String   @default("PENDING") // PENDING, ACCEPTED, DECLINED
   partiesAssigned Int      @default(0)
@@ -160,7 +197,7 @@ model EventSignup {
   updatedAt       DateTime @updatedAt
 
   session EventSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User         @relation(fields: [userId], references: [id])
 
   @@unique([sessionId, userId])
 }
@@ -215,7 +252,7 @@ model Jobs {
   id       String    @id @default(uuid())
   signupId String
   job      Job
-  role     Role
+  role     Role // infer from modifier
   modifier Modifier?
 
   signup EventSignup @relation(fields: [signupId], references: [id])

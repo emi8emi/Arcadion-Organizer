@@ -23,6 +23,7 @@ import {
     GuildBasedChannel,
     TextChannel,
     Message,
+    ComponentType,
 } from 'discord.js'
 import { FIGHTS, FIGHTS_ARRAY, getFightName, FIGHTS_WITH_TIERS, FIGHTS_WITH_TIERS_ARRAY, TIERS, getFightsFromTier } from '../data/fights.js';
 import { Event, EventSession } from '../generated/prisma/client.js';
@@ -30,9 +31,11 @@ import { eventService, EventSessionStatus, EventStatus } from '../services/event
 import { buildRegisterWithSkip } from './register.js';
 import { userService } from '../services/userService.js';
 import { client } from '../index.js';
-import { buildCreateEventModal, buildEventPanelMessage, buildEventsCreatorPanelMessage, buildSessionOrganizerPanelMessage, buildSessionSignUpPanelMessage } from './eventsPanel.js';
+import { buildCreateEventModal, buildEventPanelMessage, buildEventsCreatorPanelMessage, buildEventsHelperPanelMessage, buildSessionOrganizerPanelMessage, buildSessionSignUpPanelMessage } from './eventsPanel.js';
 import { dateHelper } from '../utils/generalHelpers.js';
 import { error } from 'node:console';
+import { randomUUID } from 'node:crypto';
+import { DateTime } from 'luxon';
 
 export enum TIME_SLOTS {
 
@@ -202,7 +205,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
                         .addOptions(fights.map(f =>
                             new StringSelectMenuOptionBuilder()
                                 .setLabel(f.name)
-                                .setValue(f.value)
+                                .setValue(f.id)
                         ))
                 ),
                 new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -220,7 +223,7 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
     else if (interaction.isStringSelectMenu() && interaction.customId === 'events_create_fight_id') {
         const selectedFight = interaction.values[0];
         selectedFightId.set(interaction.user.id, selectedFight);
-        await interaction.showModal(buildCreateEventModal());
+        await interaction.showModal(await buildCreateEventModal());
 
         try {
             await interaction.editReply({
@@ -243,10 +246,14 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
             return false;
         }
 
+
+
         const description = interaction.fields.getTextInputValue('events_create_description');
         const startDateStr = interaction.fields.getTextInputValue('events_create_start_date');
         const endDateStr = interaction.fields.getTextInputValue('events_create_end_date');
-
+        const snapshotStr = interaction.fields.getTextInputValue('events_create_snapshot');
+        const components = (interaction.components as any[])
+        const timezoneIana = components.find(c => c.component?.customId === 'events_create_timezone')?.component?.value;
         // Validation
         const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
         if (!dateRegex.test(startDateStr) || !dateRegex.test(endDateStr)) {
@@ -254,10 +261,15 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
             return false;
         }
 
-        const startDate = new Date(`${startDateStr}T00:00:00Z`);
-        const endDate = new Date(`${endDateStr}T00:00:00Z`);
+        const timeRegex = /^\d{2}-\d{2}:\d{2}$/;
+        if (!timeRegex.test(snapshotStr)) {
+            await interaction.reply({ content: 'Invalid time format. Please use exactly dd-HH:mm.', flags: [MessageFlags.Ephemeral] });
+            return false;
+        }
 
-        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        const startDate = DateTime.fromFormat(startDateStr, 'yyyy-MM-dd', { zone: timezoneIana });
+        const endDate = DateTime.fromFormat(endDateStr, 'yyyy-MM-dd', { zone: timezoneIana });
+        if (!startDate.isValid || !endDate.isValid) {
             await interaction.reply({ content: 'Invalid date. Please enter valid calendar dates.', flags: [MessageFlags.Ephemeral] });
             return false;
         }
@@ -265,6 +277,18 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
             await interaction.reply({ content: 'End date cannot be before start date.', flags: [MessageFlags.Ephemeral] });
             return false;
         }
+
+        const timeNow = DateTime.now().setZone(timezoneIana);
+        const [daysStr, snapshotTime] = snapshotStr.split('-');
+        const snapshotDays = parseInt(daysStr);
+        const [snapshotHour, snapshotMinute] = snapshotTime.split(':').map(Number);
+        const snapshotMoment = startDate.minus({ days: snapshotDays }).set({ hour: snapshotHour, minute: snapshotMinute });
+
+        if (snapshotMoment < timeNow) {
+            await interaction.reply({ content: 'Invalid start date. The time snapshot for today has already passed.', flags: [MessageFlags.Ephemeral] });
+            return false;
+        }
+
 
         const fightId = selectedFightId.get(interaction.user.id)!;
         const fightName = getFightName(fightId) || 'Event';
@@ -309,11 +333,16 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
 
             // Prepare dates
             const sessionDates: Date[] = [];
-            let currentDate = new Date(startDate);
-            while (currentDate <= endDate) {
-                sessionDates.push(new Date(currentDate));
+            let currentDate = startDate.toUTC();
+            while (currentDate <= endDate.toUTC()) {
+                if (DateTime.now().toUTC().day - endDate.toUTC().day < 1) {
+                    console.log('Skipping date:', currentDate.toFormat('yyyy-MM-dd'));
+                    currentDate = currentDate.plus({ days: 1 });
+                    continue;
+                }
+                sessionDates.push(currentDate.toJSDate());
                 // Add 1 day safely
-                currentDate.setUTCDate(currentDate.getUTCDate() + 1);
+                currentDate = currentDate.plus({ days: 1 });
             }
 
             // Create Event in database
@@ -323,11 +352,11 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
                 fightId: fightId,
                 categoryId: category.id,
                 description: description,
-                startDate: startDate,
-                endDate: endDate,
+                startDate: startDate.toUTC().toJSDate(),
+                endDate: endDate.toUTC().toJSDate(),
             });
 
-            const channelsCreated = await createEventSessions(event, sessionDates, interaction, category);
+            const channelsCreated = await createEventSessions(event, sessionDates, interaction, category, snapshotStr);
 
             await interaction.editReply({
                 content: `Event created successfully. Category <#${category.id}> was generated. ${channelsCreated} session channels were created immediately (remaining will be created 1 day before).`,
@@ -371,11 +400,25 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
         return true;
     }
     // -- /events cancel | select ----------------------------
-    else if (interaction.isStringSelectMenu() && interaction.customId === 'events_cancel_select') {
-        const eventId = interaction.values[0];
+    else if ((interaction.isStringSelectMenu() || interaction.isButton()) && (interaction.customId === 'events_cancel_select' || interaction.customId === 'events_cancel_confirm')) {
+        let eventId: string;
 
+        if (interaction.isButton()) {
+            const channelId = interaction.channelId;
+            const event = await eventService.getEventIdByPanelChannelId(channelId);
+            if (!event) {
+                await interaction.reply({
+                    content: 'Event not found.',
+                    flags: [MessageFlags.Ephemeral],
+                });
+                return false;
+            }
+            eventId = event.id;
+            console.log(`[events] Found event ${eventId} for panel channel ${channelId}`);
+        } else {
+            eventId = interaction.values[0];
+        }
         await interaction.deferUpdate();
-
         try {
             // Delete session channels and update status to cancelled
             await deleteDiscordSession(interaction.guild!, [eventId], true);
@@ -383,11 +426,12 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
         } catch (error) {
             console.error('Failed to delete Discord channels for event:', error);
         }
-
-        await interaction.editReply({
-            content: 'Event and associated channels deleted successfully.',
-            components: [],
-        });
+        if (interaction.isStringSelectMenu()) {
+            await interaction.editReply({
+                content: 'Event and associated channels deleted successfully.',
+                components: [],
+            });
+        }
         return true;
     }
     // -- /events view | button ------------------------------
@@ -443,6 +487,36 @@ export async function handleComponent(interaction: ButtonInteraction | StringSel
         return true;
     }
 
+    // ─── /events panel | button ─────────────────────────────
+    else if (interaction.isButton() && interaction.customId === 'events_panel') {
+        const eventId = interaction.message.embeds[0].footer?.text.split(' ')[1];
+        if (!eventId) {
+            await interaction.reply({ content: 'Event not found.', flags: [MessageFlags.Ephemeral] });
+            return false;
+        }
+        const event = await eventService.getEventById(eventId);
+        if (!event) {
+            await interaction.reply({ content: 'Event not found.', flags: [MessageFlags.Ephemeral] });
+            return false;
+        }
+        const embed = new EmbedBuilder()
+            .setTitle(`Event: ${getFightName(event.fightId) || 'Unknown'}`)
+            .setDescription(event.description)
+            .addFields(
+                { name: 'Start Date', value: event.startDate.toDateString(), inline: true },
+                { name: 'End Date', value: event.endDate.toDateString(), inline: true },
+                { name: 'Status', value: event.status, inline: true }
+            )
+            .setColor(0x5865F2);
+
+        await interaction.update({
+            content: '',
+            embeds: [embed],
+            components: [],
+        });
+        return true;
+    }
+
     return false;
 }
 
@@ -450,7 +524,8 @@ async function createEventSessions(
     event: Event,
     sessionDates: Date[],
     interaction: ChatInputCommandInteraction | ModalSubmitInteraction,
-    category?: CategoryChannel) {
+    category?: CategoryChannel,
+    snapshotStr?: string) {
     if (!category) {
         const tempCategory = await interaction.guild!.channels.fetch(event.categoryId!);
         if (!tempCategory) {
@@ -465,27 +540,36 @@ async function createEventSessions(
     const maxDay = dateHelper.addDays(today, 1);
     let channelsCreated = 0;
 
-    const creatorPanel = await interaction.guild!.channels.create({
+    const creatorPanelChannel = await interaction.guild!.channels.create({
         name: `panel-${getEventLabel(event)}`,
         type: ChannelType.GuildText,
         parent: category.id,
     });
-    const message = buildEventsCreatorPanelMessage();
-    await creatorPanel.send({ ...message, flags: [MessageFlags.SuppressNotifications] });
-    await eventService.updateEventPanelChannelId(event.id, creatorPanel.id);
+    const organizerPanelMessage = buildEventsCreatorPanelMessage();
+    await creatorPanelChannel.send({ ...organizerPanelMessage, flags: [MessageFlags.SuppressNotifications] });
+    const helperPanelMessage = buildEventsHelperPanelMessage();
+    await creatorPanelChannel.send({ ...helperPanelMessage, flags: [MessageFlags.SuppressNotifications] });
+    await eventService.updateEventPanelChannelId(event.id, creatorPanelChannel.id);
     channelsCreated++;
 
     for (const date of sessionDates) {
-        const snapshotAt = dateHelper.addHours(date, -2);
+        let snapshotAt = dateHelper.addHours(date, -2);
+        if (snapshotStr) {
+            const [daysStr, snapshotTime] = snapshotStr.split('-');
+            const days = parseInt(daysStr);
+            const [snapshotHour, snapshotMinute] = snapshotTime.split(':').map(Number);
+            snapshotAt = DateTime.fromJSDate(date).minus({ days: days }).set({ hour: snapshotHour, minute: snapshotMinute }).toJSDate();
+        }
         let channelId = null;
 
         let organizerPanelMessageId = null;
         let signupPanelMessageId = null;
         let status = EventSessionStatus.UPCOMING;
+        const sessionId = randomUUID();
         if (date <= maxDay) {
             status = EventSessionStatus.OPEN;
             try {
-                const { sessionChannel, organizerPanelMessage, signupPanelMessage } = await createSessionChannel(interaction.guild!, category, date);
+                const { sessionChannel, organizerPanelMessage, signupPanelMessage } = await createSessionChannel(interaction.guild!, category, sessionId, date);
                 channelId = sessionChannel.id;
                 organizerPanelMessageId = organizerPanelMessage?.id ?? null;
                 signupPanelMessageId = signupPanelMessage?.id ?? null;
@@ -496,6 +580,7 @@ async function createEventSessions(
         }
 
         await eventService.createEventSession({
+            id: sessionId,
             eventId: event.id,
             channelId: channelId,
             date: date,
@@ -511,6 +596,7 @@ async function createEventSessions(
 async function createSessionChannel(
     guild: Guild,
     category: CategoryChannel,
+    sessionId: string,
     date: Date): Promise<{ sessionChannel: TextChannel, organizerPanelMessage: Message | null, signupPanelMessage: Message | null }> {
     let errors: string[] = [];
 
@@ -531,7 +617,7 @@ async function createSessionChannel(
 
     let signupPanelMessage = null;
     try {
-        const signupPanel = buildSessionSignUpPanelMessage();
+        const signupPanel = buildSessionSignUpPanelMessage(sessionId);
         signupPanelMessage = await sessionChannel.send({ ...signupPanel, flags: [MessageFlags.SuppressNotifications] });
     } catch (error) {
         errors.push(`[createSessionChannel] Failed to create signup panel for event on ${date}: ${error}`);
@@ -561,17 +647,9 @@ export async function createUpcomingEventChannels(
     }
 
     for (const event of events) {
-        const categoryId = event.categoryId;
-        if (!categoryId) {
-            continue;
-        }
-        const category = await guild.channels.fetch(categoryId) as CategoryChannel;
-        if (!category) {
-            continue;
-        }
         for (const session of event.eventSessions.filter(session => session.date.getUTCDate() <= when.getUTCDate())) {
             try {
-                if (session.status !== EventSessionStatus.UPCOMING) {
+                if (session.status !== EventSessionStatus.UPCOMING && session.status !== EventSessionStatus.CANCELLED) {
                     if (session.status === EventSessionStatus.OPEN || session.status === EventSessionStatus.CLOSED) {
                         if (dateHelper.isSameDay(session.date, when)) {
                             console.warn(`[createNextDayEventChannels] Session for event ${event.id} on ${when} is already ${session.status}`);
@@ -583,7 +661,23 @@ export async function createUpcomingEventChannels(
                     throw err;
                 }
 
-                const { sessionChannel, organizerPanelMessage, signupPanelMessage } = await createSessionChannel(guild, category, session.date);
+                const categoryId = event.categoryId;
+                if (!categoryId) {
+                    continue;
+                }
+
+                let category: CategoryChannel;
+                try {
+                    category = await guild.channels.fetch(categoryId) as CategoryChannel;
+                    if (!category) {
+                        continue;
+                    }
+                } catch (error) {
+                    console.log(`[createUpcomingEventChannels] Failed to fetch category for event ${event.id}: ${error}`);
+                    continue;
+                }
+
+                const { sessionChannel, organizerPanelMessage, signupPanelMessage } = await createSessionChannel(guild, category, session.id, session.date);
                 await eventService.updateEventSession(
                     session.id,
                     {
@@ -632,8 +726,19 @@ async function deleteDiscordSession(
             continue;
         }
 
+        if (!event.eventSessions) {
+            continue;
+        }
+
         try {
             for (const session of event.eventSessions) {
+                if (
+                    session.status === EventSessionStatus.COMPLETED
+                    || session.status === EventSessionStatus.CANCELLED
+                    || session.status === EventSessionStatus.UPCOMING
+                ) {
+                    continue;
+                }
                 if (session.channelId) {
                     await guild.channels.delete(session.channelId).catch((error) => {
                         throw error;

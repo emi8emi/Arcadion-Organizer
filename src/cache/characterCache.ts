@@ -1,8 +1,8 @@
 import { Character } from "../generated/prisma/client.js";
-import { CharacterOptions, characterService } from "../services/characterService.js";
 
 const cache = new Map<string, Character[]>();
 
+// TODO: implement dirty checking
 export const characterCache = {
     async get(userId: string): Promise<Character[] | null> {
         return cache.get(userId) ?? null;

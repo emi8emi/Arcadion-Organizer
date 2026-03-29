@@ -146,7 +146,7 @@ function buildFightSelect(): ActionRowBuilder<StringSelectMenuBuilder> {
             allFights.map(f =>
                 new StringSelectMenuOptionBuilder()
                     .setLabel(f.name)
-                    .setValue(f.value)
+                    .setValue(f.id)
             )
         );
     return new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(menu);

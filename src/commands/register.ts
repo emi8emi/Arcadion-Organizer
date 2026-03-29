@@ -239,6 +239,8 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
     await interaction.showModal(modal);
 }
 
+// TODO: abstract component building into a separate file or at least remove it from handleComponent
+
 // ─── Component / modal handler ────────────────────────────────────────────
 export async function handleComponent(interaction: ButtonInteraction | StringSelectMenuInteraction | ModalSubmitInteraction): Promise<void> {
     const userId = interaction.user.id;

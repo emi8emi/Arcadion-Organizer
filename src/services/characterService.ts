@@ -54,25 +54,28 @@ export const characterService = {
         return character;
     },
     async getUserCharacters(userId: string) {
-        const cached = characterCache.get(userId);
-        if (cached) return cached;
+        const cached = await characterCache.get(userId);
+        if (cached) {
+            console.log(`[characterService] Found cached characters ${JSON.stringify(cached)}`);
+            return cached;
+        }
 
         const characters = await prisma.character.findMany({
             where: { userId },
         });
-        characterCache.set(userId, characters);
+        await characterCache.set(userId, characters);
         return characters;
     },
     async removeCharacter(userId: string, characterIds: string[]) {
         let characters = await this.getUserCharacters(userId) ?? [];
         characters = characters.filter((c) => !characterIds.includes(c.id));
-        characterCache.set(userId, characters);
+        await characterCache.set(userId, characters);
         return await prisma.character.deleteMany({
             where: { userId, id: { in: characterIds } },
         });
     },
     async removeAllCharacters(userId: string) {
-        characterCache.delete(userId);
+        await characterCache.delete(userId);
         return await prisma.character.deleteMany({
             where: { userId },
         });

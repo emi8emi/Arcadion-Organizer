@@ -35,7 +35,8 @@ async function scheduleNextSnapshot() {
     console.log(`[eventsCron] Scheduling next snapshot for event ${next.id} at ${dateHelper.addMs(dateHelper.today(true), delay).toISOString()}`);
     setTimeout(async () => {
         // TODO: run formation for session
-        await runFormation(next);
+        // await runFormation(next);
+        await eventService.updateEventSessionStatus([next.id], EventSessionStatus.CLOSED);
         console.log(`[eventsCron] Snapshot taken for event ${next.id}`);
         scheduleNextSnapshot(); // reschedule for the next one
     }, Math.max(delay, 0));
